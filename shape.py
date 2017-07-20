@@ -28,6 +28,7 @@ import pandas as pd
 from mpl_toolkits.mplot3d import Axes3D
 import matplotlib.pyplot as plt
 import numpy as np
+from scipy.spatial import ConvexHull
 
 
 class shape(object):
@@ -57,6 +58,9 @@ class shapeDDA(shape):
                                      header=None,
                                      names=['N','X','Y','Z','CX','CY','CZ'])
             self.substances = self.shape[['CX','CY','CZ']].drop_duplicates()
+            self.hull = None
+            self.dmax = None
+            self.dsphere = None
             
              
     def draw(self):
@@ -74,9 +78,22 @@ class shapeDDA(shape):
             
     def find_dmax(self):
         """ Find maximum dimension """
+        if self.hull is None:
+            self.hull = ConvexHull(self.shape[['X','Y','Z']])
+        dmax = 0
+        vtx = self.hull.points[self.hull.vertices]
+        for i in range(len(vtx)-1):
+            for j in range(i+1,len(vtx)):
+                d = ((vtx[i]-vtx[j])**2).sum()
+                if d > dmax:
+                    dmax = d
+        self.dmax = dmax**0.5
+        
         
     def find_dsphere(self):
         """ Find diameter of the minimum enclosing sphere """
+        if self.hull is None:
+            self.hull = ConvexHull(self.shape[['X','Y','Z']])
         
     
         
