@@ -38,6 +38,12 @@ class shape(object):
 
     def __init__(self):
         print('A shape object has been created')
+        self.Ndipoles = None
+        self.shape = None
+        self.substances = None
+        self.hull = None
+        self.dmax = None
+        self.dsphere = None
         
 class shapeDDA(shape):
     """ This is a specific DDA shapefile
