@@ -88,13 +88,31 @@ class shapeDDA(shape):
                 if d > dmax:
                     dmax = d
         self.dmax = dmax**0.5
+        return self.dmax
         
         
     def find_dsphere(self):
         """ Find diameter of the minimum enclosing sphere """
         if self.hull is None:
             self.hull = ConvexHull(self.shape[['X','Y','Z']])
-        
+            
+    def get_melted_fraction(self):
+        """ Here I assume there are two substances, one is water, the other ice.
+            Not sure about how to distinguish them ...
+        """
+        if len(self.substances == 2):
+            Ndip1 = len(self.shape[(self.shape['CX']==self.substances['CX'][0])&
+                                 (self.shape['CY']==self.substances['CY'][0])&
+                                 (self.shape['CZ']==self.substances['CZ'][0])])
+            return Ndip1/self.Ndipoles
+        else:
+            print('This shapefile have ', len(self.substances), ' substances')
+            return None
+    
+    def find_mass(self,aeff):
+        self.d = aeff*np.cbrt(4.*np.pi/(self.Ndipoles*3.))
+        self.mass = 1e-9*0.917*self.Ndipoles*self.d**3 # if I got microns, this should return milligrams
+        return self.mass
     
         
     
