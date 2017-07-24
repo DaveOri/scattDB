@@ -82,7 +82,7 @@ class shapeDDA(shape):
             zs = currshape.Z.values
             ax.scatter(xs, ys, zs)#, s=20, c=None, depthshade=True)
             
-    def find_dmax(self):
+    def find_dmax(self,aeff=None):
         """ Find maximum dimension """
         if self.hull is None:
             self.hull = ConvexHull(self.shape[['X','Y','Z']])
@@ -93,7 +93,11 @@ class shapeDDA(shape):
                 d = ((vtx[i]-vtx[j])**2).sum()
                 if d > dmax:
                     dmax = d
-        self.dmax = dmax**0.5
+        if aeff is not None:
+            self.d = aeff*np.cbrt(4.*np.pi/(self.Ndipoles*3.))
+            self.dmax = self.d*dmax**0.5
+        else:
+            self.dmax = dmax**0.5
         return self.dmax
         
         
@@ -101,6 +105,7 @@ class shapeDDA(shape):
         """ Find diameter of the minimum enclosing sphere """
         if self.hull is None:
             self.hull = ConvexHull(self.shape[['X','Y','Z']])
+        print('Method find_dsphere is not implemented yet')
             
     def get_melted_fraction(self):
         """ Here I assume there are two substances, one is water, the other ice.
