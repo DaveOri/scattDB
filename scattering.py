@@ -27,9 +27,10 @@ CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 import pandas as pd
 import numpy as np
+from scipy import interpolate
 
-def interpolate(x,x1,x0,y1,y0):
-    return y0+(x-x0)*(y1-y0)/(x1-x0)
+#def interpolate(x,x1,x0,y1,y0):
+#    return y0+(x-x0)*(y1-y0)/(x1-x0)
 
 class Scatterer(object):
     def __init__(self):
@@ -145,11 +146,16 @@ class ScattDist(object):
         TODO: it should allow some extrapolation as well
         """
         dist = self.get_distro(quantity)
-        lower = dist[dist[:,0] <= D]
-        upper = dist[dist[:,0] >= D]
-        low = lower[lower[:,0].argmin()]
-        up  = upper[upper[:,0].argmax()]
-        return interpolate(D,up[0],low[0],up[1:],low[1:])
+        x = dist[:,0]
+        y = dist[:,1:]
+        interp = interpolate.interp1d(x,y,axis=0,assume_sorted=False)
+        return interp(D)
+        
+        #lower = dist[dist[:,0] <= D]
+        #upper = dist[dist[:,0] >= D]
+        #low = lower[lower[:,0].argmin()]
+        #up  = upper[upper[:,0].argmax()]
+        #return interpolate(D,up[0],low[0],up[1:],low[1:])
 
         
     def get_distro(self, quantity):

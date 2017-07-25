@@ -86,4 +86,3 @@ class ExponentialPSD(PSD):
                 (self.D_max == other.D_max)
         except AttributeError:
             return False
-            
