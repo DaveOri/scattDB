@@ -28,6 +28,9 @@ CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 import pandas as pd
 import numpy as np
 
+def interpolate(x,x1,x0,y1,y0):
+    return y0+(x-x0)*(y1-y0)/(x1-x0)
+
 class Scatterer(object):
     def __init__(self):
         print('A scattering object has been created')
@@ -42,7 +45,8 @@ class Scatterer(object):
         
     def eff2xsect(self,eff):
         return eff*(np.pi*self.aeff**2.)            
-            
+    
+    @property        
     def radar_xsect(self, h_pol=True):
         """Radar cross section for the current setup.    
     
@@ -60,6 +64,7 @@ class Scatterer(object):
         else:
             return 2.*np.pi*(Z[0,0]-Z[0,1]-Z[1,0]+Z[1,1])
         
+    @property
     def ldr(self, h_pol=True):
         """
         Linear depolarizarion ratio (LDR) for the current setup.
@@ -76,8 +81,7 @@ class Scatterer(object):
         if h_pol:
             return (Z[0,0]-Z[0,1]+Z[1,0]-Z[1,1])/(Z[0,0]-Z[0,1]-Z[1,0]+Z[1,1])
         else:
-            return (Z[0,0]+Z[0,1]-Z[1,0]-Z[1,1])/(Z[0,0]+Z[0,1]+Z[1,0]+Z[1,1])
-        
+            return (Z[0,0]+Z[0,1]-Z[1,0]-Z[1,1])/(Z[0,0]+Z[0,1]+Z[1,0]+Z[1,1])        
 
 class ScattDDSCAT(Scatterer):
     def __init__(self,filename=None,D=None, melt=0.0, mass=None):
@@ -113,10 +117,19 @@ class ScattDDSCAT(Scatterer):
             #back = self.phase.iloc[-1]
             #print(0.5*(back['S_11']+back['S_12']+back['S_21']+back['S_22'])/self.k**2.,self.sig_bk)
             #print(0.5*(back['S_11']-back['S_12']-back['S_21']+back['S_22'])/self.k**2.,self.sig_bk)
-            
+
 class ScattDist(object):
+    """
+    This is a distribution of particles.
+    It is initialized as an empty object and filled with particles using the
+    add_scatterer() method.
+    """
     def __init__(self):
         self.distro = []
+        
+    def __call__(self, D, quantity):
+        """ Calling the distribution should return a value for a particular size"""
+        return self.get_value(D, quantity)
         
     def add_scatterer(self,scatterer):
         """ This function simply add a scatterer to the list """
@@ -125,7 +138,28 @@ class ScattDist(object):
     def sort(self):
         """ this function should sort the distro according to some size """
         
+    def get_value(self, D, quantity):
+        """
+        This method returns a value for the for the requested quantity at size D
+        by linearly interpolating the two closest values (in log space?)
+        TODO: it should allow some extrapolation as well
+        """
+        dist = self.get_distro(quantity)
+        lower = dist[dist[:,0] <= D]
+        upper = dist[dist[:,0] >= D]
+        low = lower[lower[:,0].argmin()]
+        up  = upper[upper[:,0].argmax()]
+        return interpolate(D,up[0],low[0],up[1:],low[1:])
+
+        
     def get_distro(self, quantity):
+        """
+        This function return the numpy array of the quantities asched in the list quantity.
+        The first value is always the size of the scatterer
+            ---> part_0.D, part_0.quantity[0], part_0.quantity[1], ...
+            ---> part_1.D, part_1.quantity[0], part_1.quantity[1], ...
+            ---> ...
+        """
         if isinstance(quantity, str):
             return np.array([[scat.D,getattr(scat,quantity)] for scat in self.distro])
         else:

@@ -115,7 +115,7 @@ class shapeDDA(shape):
             Ndip1 = len(self.shape[(self.shape['CX']==self.substances['CX'][0])&
                                  (self.shape['CY']==self.substances['CY'][0])&
                                  (self.shape['CZ']==self.substances['CZ'][0])])
-            return Ndip1/self.Ndipoles
+            return float(Ndip1)/float(self.Ndipoles)
         elif len(self.substances == 1):
             return 0.0 # assumed to be pure ice
         else:
