@@ -116,6 +116,8 @@ class shapeDDA(shape):
                                  (self.shape['CY']==self.substances['CY'][0])&
                                  (self.shape['CZ']==self.substances['CZ'][0])])
             return Ndip1/self.Ndipoles
+        elif len(self.substances == 1):
+            return 0.0 # assumed to be pure ice
         else:
             print('This shapefile have ', len(self.substances), ' substances')
             return None

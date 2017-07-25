@@ -80,9 +80,11 @@ class Scatterer(object):
         
 
 class ScattDDSCAT(Scatterer):
-    def __init__(self,filename=None,D=None):
+    def __init__(self,filename=None,D=None, melt=0.0, mass=None):
         if filename is not None:
             self.D = D # Size passed from outside, scattering is agnostic of shape and scales unitless
+            self.melt = melt
+            self.mass = mass
             
             scattfile = open(filename,'r')
             lines = scattfile.readlines()
@@ -124,6 +126,8 @@ class ScattDist(object):
         """ this function should sort the distro according to some size """
         
     def get_distro(self, quantity):
-        for scat in self.distro:
-            print(getattr(scat,quantity))
+        if isinstance(quantity, str):
+            return np.array([[scat.D,getattr(scat,quantity)] for scat in self.distro])
+        else:
+            return np.array([[scat.D]+[getattr(scat, quant) for quant in quantity] for scat in self.distro])
     
