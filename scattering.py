@@ -136,19 +136,22 @@ class ScattDist(object):
         """ This function simply add a scatterer to the list """
         self.distro.append(scatterer) # TODO check for availability of size
     
-    def sort(self):
-        """ this function should sort the distro according to some size """
+#    def sort(self):
+#        """ this function should sort the distro according to some size """
         
     def get_value(self, D, quantity):
         """
         This method returns a value for the for the requested quantity at size D
         by linearly interpolating the two closest values (in log space?)
-        TODO: it should allow some extrapolation as well
+        It also extrapolate assuming boundary values as perpetual
         """
         dist = self.get_distro(quantity)
+        dist.sort(axis=0)
         x = dist[:,0]
         y = dist[:,1:]
-        interp = interpolate.interp1d(x,y,axis=0,assume_sorted=False)
+        interp = interpolate.interp1d(x, y, axis=0, bounds_error=False,
+                                      fill_value=(y[0],y[-1]),
+                                      assume_sorted=True)
         return interp(D)
         
         #lower = dist[dist[:,0] <= D]
