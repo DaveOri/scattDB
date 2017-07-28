@@ -63,21 +63,20 @@ class shape(object):
             self.dmax = dmax**0.5
         return self.dmax
         
-        
-    def find_dsphere(self):
-        """ Find diameter of the minimum enclosing sphere """
-        if self.hull is None:
-            self.hull = ConvexHull(self.shape[['X','Y','Z']])
-        print('Method find_dsphere is not implemented yet')
+#    def find_dsphere(self):
+#        """ Find diameter of the minimum enclosing sphere """
+#        if self.hull is None:
+#            self.hull = ConvexHull(self.shape[['X','Y','Z']])
+#        print('Method find_dsphere is not implemented yet')
             
-    def get_melted_fraction(self):
+    def get_melted_fraction(self,idx=0):
         """ Here I assume there are two substances, one is water, the other ice.
             Not sure about how to distinguish them ...
         """
         if len(self.substances == 2):
-            Ndip1 = len(self.shape[(self.shape['CX']==self.substances['CX'][0])&
-                                 (self.shape['CY']==self.substances['CY'][0])&
-                                 (self.shape['CZ']==self.substances['CZ'][0])])
+            Ndip1 = len(self.shape[(self.shape['CX']==self.substances['CX'].iloc[idx])&
+                                   (self.shape['CY']==self.substances['CY'].iloc[idx])&
+                                   (self.shape['CZ']==self.substances['CZ'].iloc[idx])])
             return float(Ndip1)/float(self.Ndipoles)
         elif len(self.substances == 1):
             return 0.0 # assumed to be pure ice
@@ -95,9 +94,9 @@ class shape(object):
         fig = plt.figure()
         ax = fig.add_subplot(111, projection='3d')
         for i in range(len(self.substances)):
-            currshape=self.shape[(self.shape['CX']==self.substances['CX'][i])&
-                                 (self.shape['CY']==self.substances['CY'][i])&
-                                 (self.shape['CZ']==self.substances['CZ'][i])]
+            currshape=self.shape[(self.shape['CX']==self.substances['CX'].iloc[i])&
+                                 (self.shape['CY']==self.substances['CY'].iloc[i])&
+                                 (self.shape['CZ']==self.substances['CZ'].iloc[i])]
             xs = currshape.X.values
             ys = currshape.Y.values
             zs = currshape.Z.values
@@ -108,7 +107,7 @@ class shapeDDA(shape):
     it will be flexible enough to read at least ADDA and DDSCAT formats TODO:versions?
     """
     def __init__(self,filename=None):
-        """ at the moment we assume the shapefile is from ddscat7.3
+        """ at the moment we assume the shapefile is from ddscat7.3, or 7.2
         """
         if filename is not None:
             shapefile = open(filename,"r")
