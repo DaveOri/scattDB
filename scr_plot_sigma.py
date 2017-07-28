@@ -20,7 +20,7 @@ scattfolder = '/work/DBs/melted_aggregate_scaled_reff_Ku_Ka_W_89_165_183/'
 
 #melt_fracs = ['000001','001010','002004','004988','007029']
 #melt_fracs = ['000001','001017','001315']
-melt_fracs = ['000001','002004','004988','007029']
+melt_fracs = ['000001','001010','002004','003030','004073','004988','007029']
 freqs = ['13.4','35.6','94']
 
 Zlab = {'13.4':'ZKu','35.6':'ZKa','94':'ZW'}
@@ -34,7 +34,7 @@ coeffu = lamu**4./(0.95*np.pi**5.)
 coeffa = lama**4./(0.95*np.pi**5.)
 coeffW = lamW**4./(0.75*np.pi**5.)
 
-lambdas = 1.0/np.linspace(0.5,3,10) #13
+lambdas = 1.0/np.linspace(0.5,3,20) #13
 
 cols = ['Ku_Ka','Ka_W','LDRka','melt','Dm']
 
@@ -80,12 +80,10 @@ for melt_frac in melt_fracs:
         #array = dist.get_distro(['sig_bk','mass','melt','ldr'])
 
     sizes = np.linspace(0.25,30.7,1024)
-    plt.figure()
-    ax2 = plt.subplot(3,1,1)
     #plt.figure()
-    ax3 = plt.subplot(3,1,2)
-    #plt.figure()
-    ax4 = plt.subplot(3,1,3)
+    #ax2 = plt.subplot(3,1,1)
+    #ax3 = plt.subplot(3,1,2)
+    #ax4 = plt.subplot(3,1,3)
     for lam in lambdas:
         conc  = psd.ExponentialPSD(Lambda=lam,D_max=max(sizes)+0.1)
         concD = conc(sizes) 
@@ -109,16 +107,16 @@ for melt_frac in melt_fracs:
         data = data.append(datapart)
         print(Zu-Za,Za-ZW,LDRa)
         i = i+1
-        ax2.plot(sizes,intZu,label=str(1.0/lam))
-        ax3.plot(sizes,intZa,label=str(1.0/lam))
-        ax4.plot(sizes,intZW,label=str(1.0/lam))
+        #ax2.plot(sizes,intZu,label=str(1.0/lam))
+        #ax3.plot(sizes,intZa,label=str(1.0/lam))
+        #ax4.plot(sizes,intZW,label=str(1.0/lam))
         
-    ax2.legend()
-    ax3.legend()
-    ax4.legend()
-    ax2.set_title('Ku'+melt_frac)
-    ax3.set_title('Ka')
-    ax4.set_title('W')
+    #ax2.legend()
+    #ax3.legend()
+    #ax4.legend()
+    #ax2.set_title('Ku'+melt_frac)
+    #ax3.set_title('Ka')
+    #ax4.set_title('W')
     s=ax.scatter(data['Ka_W'],data['Ku_Ka'],c=data['LDRka'],label=melt_frac)
     #data.plot(x='Ka_W',y='Ku_Ka',kind='scatter',ax=ax,label=melt_frac)
     datatot = datatot.append(data)
@@ -171,3 +169,27 @@ plt.xlabel('DWR$_{Ku,Ka}$')
 #        ax.set_ylim([1e-3,1e0])
 #        ax.set_xscale('log')
 #        ax.set_yscale('log')
+
+
+melt2perc = lambda x: int(int(x)*0.01)
+mm = [melt2perc(x) for x in melt_fracs]
+
+plt.figure()        
+for melt in melt_fracs:
+    subdata = datatot[datatot['melt']==melt]
+    plt.plot(subdata['Dm'],subdata['LDRka'],label=melt2perc(melt))
+plt.xlabel('$\Lambda^{-1}   [mm]$')
+plt.ylabel('LDR   Ka   [dBZ]')
+plt.legend(title='melted fraction')
+plt.grid()
+plt.savefig('ldr_melt.pdf')
+
+plt.figure()        
+for lam in datatot.Dm.drop_duplicates()[0:-1:3]:
+    subdata = datatot[datatot['Dm']==lam]
+    plt.plot(mm,subdata['LDRka'],label=str(lam)[0:3])
+plt.xlabel('melted fraction    [%]')
+plt.ylabel('LDR   Ka   [dBZ]')
+plt.legend(title='Dm')
+plt.grid()
+plt.savefig('ldr_dm.pdf')

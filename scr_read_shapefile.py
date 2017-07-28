@@ -17,6 +17,12 @@ import matplotlib.pyplot as plt
 #shp = shape.shapeDDA(filename)
 #shp.draw()
 
+filename = '/work/DBs/10/2400/shape.adda'
+shp = shape.shapeDDA(filename)
+shp.draw()
+
+#%%
+
 shapefolder = '/work/DBs/melted_aggregate_shape_files/'
 folders = glob(shapefolder+'*')
 foldersto = glob(shapefolder+'*to*')
