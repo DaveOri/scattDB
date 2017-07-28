@@ -85,7 +85,7 @@ class Scatterer(object):
             return (Z[0,0]+Z[0,1]-Z[1,0]-Z[1,1])/(Z[0,0]+Z[0,1]+Z[1,0]+Z[1,1])        
 
 class ScattDDSCAT(Scatterer):
-    def __init__(self,filename=None,D=None, melt=0.0, mass=None):
+    def __init__(self, filename=None, D=None, melt=0.0, mass=None):
         if filename is not None:
             self.D = D # Size passed from outside, scattering is agnostic of shape and scales unitless
             self.melt = melt
@@ -115,9 +115,40 @@ class ScattDDSCAT(Scatterer):
             self.S = np.array([[back['S_11'],back['S_12']],[back['S_21'],back['S_22']]]) # TODO extend to the full 4x4
             self.Z = self.S/self.k**2.
             
-            #back = self.phase.iloc[-1]
-            #print(0.5*(back['S_11']+back['S_12']+back['S_21']+back['S_22'])/self.k**2.,self.sig_bk)
-            #print(0.5*(back['S_11']-back['S_12']-back['S_21']+back['S_22'])/self.k**2.,self.sig_bk)
+class ScattADDA(Scatterer):
+    def __init__(self, logfile=None, muellerfile=None, csfile=None, D=None, melt=0.0, mass=None):
+        #if filename is not None:
+        self.D = D
+        self.melt = melt
+        self.mass = mass
+        
+        logf = open(logfile,'r')
+        csf  = open(csfile,'r')
+        mueller = pd.read_csv(muellerfile)            
+        lines = logf.readlines()
+        CSlines = csf.readlines()
+        
+        self.Ndipoles = int(lines[9].split()[-1])
+        #self.aeff = float(lines[8].split()[1])*1e-3 # convert to millimeters
+        self.wl = float(lines[3].split()[-1])*1e-3 # convert to millimeters
+        #self.d = float(lines[7].split()[-1])
+        self.k = 2*np.pi/self.wl
+
+        self.Qe = float(CSlines[1].split()[-1])
+        self.Qa = float(CSlines[1].split()[-1])
+        self.Qs = self.Qe - self.Qa
+        #self.Qbk = float(qs[6])
+        #self.g = float(qs[4])
+        #self.phase = pd.read_csv(filename,sep='\s+',header=37)
+        self.sig_bk  = 1
+        self.sig_abs = 1
+        self.sig_ext = 1
+        self.sig_sca = 1 
+        #idx_bk = self.phase[(self.phase.theta == 180.0) & (self.phase.phi == 0.0)].index[0]
+        #back = self.phase.iloc[idx_bk]
+
+        #self.S = np.array([[back['S_11'],back['S_12']],[back['S_21'],back['S_22']]]) # TODO extend to the full 4x4
+        #self.Z = self.S/self.k**2.
 
 class ScattDist(object):
     """
