@@ -44,44 +44,7 @@ class shape(object):
         self.hull = None
         self.dmax = None
         self.dsphere = None
-        
-class shapeDDA(shape):
-    """ This is a specific DDA shapefile
-    it will be flexible enough to read at least ADDA and DDSCAT formats TODO:versions?
-    """
-    def __init__(self,filename=None):
-        """ at the moment we assume the shapefile is from ddscat7.3
-        """
-        if filename is not None:
-            shapefile = open(filename,"r")
-            lines = shapefile.readlines()
-            #Nlines = len(lines)
-            self.Ndipoles = int(lines[-1].split()[0])
-            geometry_start_line = len(lines) - self.Ndipoles
-            self.shape = pd.read_csv(filename,
-                                     sep='\s+',
-                                     skiprows=geometry_start_line,
-                                     header=None,
-                                     names=['N','X','Y','Z','CX','CY','CZ'])
-            self.substances = self.shape[['CX','CY','CZ']].drop_duplicates()
-            self.hull = None
-            self.dmax = None
-            self.dsphere = None
-            
-             
-    def draw(self):
-        """ Handy function to draw particle shape """
-        fig = plt.figure()
-        ax = fig.add_subplot(111, projection='3d')
-        for i in range(len(self.substances)):
-            currshape=self.shape[(self.shape['CX']==self.substances['CX'][i])&
-                                 (self.shape['CY']==self.substances['CY'][i])&
-                                 (self.shape['CZ']==self.substances['CZ'][i])]
-            xs = currshape.X.values
-            ys = currshape.Y.values
-            zs = currshape.Z.values
-            ax.scatter(xs, ys, zs)#, s=20, c=None, depthshade=True)
-            
+
     def find_dmax(self,aeff=None):
         """ Find maximum dimension """
         if self.hull is None:
@@ -126,6 +89,44 @@ class shapeDDA(shape):
         self.d = aeff*np.cbrt(4.*np.pi/(self.Ndipoles*3.))
         self.mass = 1e-9*0.917*self.Ndipoles*self.d**3 # if I got microns, this should return milligrams
         return self.mass
+        
+    def draw(self):
+        """ Handy function to draw particle shape """
+        fig = plt.figure()
+        ax = fig.add_subplot(111, projection='3d')
+        for i in range(len(self.substances)):
+            currshape=self.shape[(self.shape['CX']==self.substances['CX'][i])&
+                                 (self.shape['CY']==self.substances['CY'][i])&
+                                 (self.shape['CZ']==self.substances['CZ'][i])]
+            xs = currshape.X.values
+            ys = currshape.Y.values
+            zs = currshape.Z.values
+            ax.scatter(xs, ys, zs)#, s=20, c=None, depthshade=True)
+        
+class shapeDDA(shape):
+    """ This is a specific DDA shapefile
+    it will be flexible enough to read at least ADDA and DDSCAT formats TODO:versions?
+    """
+    def __init__(self,filename=None):
+        """ at the moment we assume the shapefile is from ddscat7.3
+        """
+        if filename is not None:
+            shapefile = open(filename,"r")
+            lines = shapefile.readlines()
+            #Nlines = len(lines)
+            self.Ndipoles = int(lines[-1].split()[0])
+            geometry_start_line = len(lines) - self.Ndipoles
+            self.shape = pd.read_csv(filename,
+                                     sep='\s+',
+                                     skiprows=geometry_start_line,
+                                     header=None,
+                                     names=['N','X','Y','Z','CX','CY','CZ'])
+            self.substances = self.shape[['CX','CY','CZ']].drop_duplicates()
+            self.hull = None
+            self.dmax = None
+            self.dsphere = None
+            
+
     
         
     
