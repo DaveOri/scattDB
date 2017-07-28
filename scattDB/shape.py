@@ -73,19 +73,22 @@ class shape(object):
         """ Here I assume there are two substances, one is water, the other ice.
             Not sure about how to distinguish them ...
         """
-        if len(self.substances == 2):
+        if len(self.substances) == 2:
             Ndip1 = len(self.shape[(self.shape['CX']==self.substances['CX'].iloc[idx])&
                                    (self.shape['CY']==self.substances['CY'].iloc[idx])&
                                    (self.shape['CZ']==self.substances['CZ'].iloc[idx])])
             return float(Ndip1)/float(self.Ndipoles)
-        elif len(self.substances == 1):
+        elif len(self.substances) == 1:
             return 0.0 # assumed to be pure ice
         else:
             print('This shapefile have ', len(self.substances), ' substances')
             return None
     
-    def find_mass(self,aeff):
-        self.d = aeff*np.cbrt(4.*np.pi/(self.Ndipoles*3.))
+    def find_mass(self,aeff=None,d=None):
+        if aeff is not None:
+            self.d = aeff*np.cbrt(4.*np.pi/(self.Ndipoles*3.))
+        else:
+            self.d = d
         self.mass = 1e-9*0.917*self.Ndipoles*self.d**3 # if I got microns, this should return milligrams
         return self.mass
         
@@ -113,7 +116,9 @@ class shapeDDA(shape):
             shapefile = open(filename,"r")
             lines = shapefile.readlines()
             #Nlines = len(lines)
-            self.Ndipoles = int(lines[-1].split()[0])
+            self.Ndipoles = int(float(lines[-1].split()[0]))
+            if self.Ndipoles > 1e6: # TODO quick fix for my particles
+                self.Ndipoles = int(lines[1].split()[0])
             geometry_start_line = len(lines) - self.Ndipoles
             self.shape = pd.read_csv(filename,
                                      sep='\s+',

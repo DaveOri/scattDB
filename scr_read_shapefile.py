@@ -17,9 +17,22 @@ import matplotlib.pyplot as plt
 #shp = shape.shapeDDA(filename)
 #shp.draw()
 
-filename = '/work/DBs/10/2400/shape.adda'
-shp = shape.shapeDDA(filename)
-shp.draw()
+shapefolder = '/work/DBs/'
+folders = glob(shapefolder+'0/*') + glob(shapefolder+'10/*')
+DFo = pd.DataFrame(index=range(len(folders)),columns=['dmax','mass','melt'])
+i=0
+for fld in folders:
+    shp = shape.shapeDDA(fld+'/shape.adda')
+    sizestr = fld.split('/')[-1]
+    d = 20
+    if sizestr in ['14400','15100']:
+        d = 40
+    mass = shp.find_mass(d=d)
+    DFo.loc[i,'dmax'] = shp.find_dmax()*shp.d*0.001
+    DFo.loc[i,'melt'] = shp.get_melted_fraction(1)
+    DFo.loc[i,'mass'] = mass
+    print(i,DFo.loc[i])
+    i = i + 1
 
 #%%
 
@@ -93,10 +106,18 @@ b,a = np.polyfit(lgd,lgm,1)
 a = 10**a
 print(a,b)
 
+lgmo = np.log10(DFo.mass.values.astype(float))
+lgdo = np.log10(DFo.dmax.values.astype(float))
+bo,ao = np.polyfit(lgdo,lgmo,1)
+ao = 10**ao
+print(ao,bo)
+
 plt.figure()
 plt.scatter(DF.dmax,DF.mass,c=DF.melt)
+plt.scatter(DFo.dmax,DFo.mass,c=DFo.melt)
 ax = plt.gca()
 ax.plot(dx,a*dx**b)
+ax.plot(dx,ao*dx**bo)
 plt.colorbar(label='melted fraction')
 #ax.set_xscale('log')
 #ax.set_yscale('log')
