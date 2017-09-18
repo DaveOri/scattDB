@@ -18,4 +18,5 @@ scatt = scattering.ScattDDSCAT(avgfiles[0])
 scattfolder = '/work/DBs/0/'
 subfolder = '400/run000_read_g18m1_775/'
 sfld = scattfolder + subfolder
-scatt = scattering.ScattADDA(logfile=sfld+'log',muellerfile=sfld+'mueller',csfile=sfld+'CrossSec')
+scatt = scattering.ScattADDA(logfile=sfld+'log',muellerfile=sfld+'mueller',
+                             csfile=sfld+'CrossSec')

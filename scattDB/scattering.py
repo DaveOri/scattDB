@@ -124,31 +124,33 @@ class ScattADDA(Scatterer):
         
         logf = open(logfile,'r')
         csf  = open(csfile,'r')
-        mueller = pd.read_csv(muellerfile)            
+        self.mueller = pd.read_csv(muellerfile,sep=' ',index_col='theta')
+        back = self.mueller.loc[180.0]
+        #self.mueller.set_index('theta',drop=True,inplace=True)
         lines = logf.readlines()
         CSlines = csf.readlines()
         
         self.Ndipoles = int(lines[9].split()[-1])
-        #self.aeff = float(lines[8].split()[1])*1e-3 # convert to millimeters
         self.wl = float(lines[3].split()[-1])*1e-3 # convert to millimeters
         #self.d = float(lines[7].split()[-1])
         self.k = 2*np.pi/self.wl
 
         self.Qe = float(CSlines[1].split()[-1])
-        self.Qa = float(CSlines[1].split()[-1])
+        self.Qa = float(CSlines[3].split()[-1])
         self.Qs = self.Qe - self.Qa
         #self.Qbk = float(qs[6])
         #self.g = float(qs[4])
         #self.phase = pd.read_csv(filename,sep='\s+',header=37)
-        self.sig_bk  = 1
-        self.sig_abs = 1
-        self.sig_ext = 1
-        self.sig_sca = 1 
+        self.sig_bk  = 2*np.pi*(back.s11+back.s22+2*back.s12)/self.k**2.
+        self.sig_abs = float(CSlines[2].split()[-1])
+        self.sig_ext = float(CSlines[0].split()[-1])
+        self.sig_sca = self.sig_ext - self.sig_abs 
+        self.aeff = np.sqrt(self.sig_sca/(np.pi*self.Qs))
         #idx_bk = self.phase[(self.phase.theta == 180.0) & (self.phase.phi == 0.0)].index[0]
         #back = self.phase.iloc[idx_bk]
 
-        #self.S = np.array([[back['S_11'],back['S_12']],[back['S_21'],back['S_22']]]) # TODO extend to the full 4x4
-        #self.Z = self.S/self.k**2.
+        self.S = np.array([[back.s11,back.s12],[back.s21,back.s22]]) # TODO extend to the full 4x4
+        self.Z = self.S/self.k**2.
 
 class ScattDist(object):
     """

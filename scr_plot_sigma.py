@@ -23,6 +23,8 @@ scattfolder = '/work/DBs/melted_aggregate_scaled_reff_Ku_Ka_W_89_165_183/'
 melt_fracs = ['000001','001010','002004','003030','004073','004988','007029']
 freqs = ['13.4','35.6','94']
 
+melt2perc = lambda x: int(int(x)*0.01)
+
 Zlab = {'13.4':'ZKu','35.6':'ZKa','94':'ZW'}
 Llab = {'13.4':'LKu','35.6':'LKa','94':'LW'}
 
@@ -117,19 +119,21 @@ for melt_frac in melt_fracs:
     #ax2.set_title('Ku'+melt_frac)
     #ax3.set_title('Ka')
     #ax4.set_title('W')
-    s=ax.scatter(data['Ka_W'],data['Ku_Ka'],c=data['LDRka'],label=melt_frac)
+    s=ax.scatter(data['Ka_W'],data['Ku_Ka'],c=data['LDRka'],label=melt2perc(melt_frac))
     #data.plot(x='Ka_W',y='Ku_Ka',kind='scatter',ax=ax,label=melt_frac)
     datatot = datatot.append(data)
 
 ax.legend()  
 plt.colorbar(mappable=s,ax=ax)
 
+
 plt.figure()
 plt.scatter(datatot['Ka_W'],datatot['Ku_Ka'],c=datatot['LDRka'],cmap=plt.cm.jet)
-plt.title(i + "   " for i in melt_fracs)
+plt.title('3freq + LDR')
 plt.colorbar(label='LDR')
 plt.xlabel('DWR$_{Ka,W}$')
-plt.xlabel('DWR$_{Ku,Ka}$')
+plt.ylabel('DWR$_{Ku,Ka}$')
+plt.savefig('3freq+LDR.png',dpi=600)
         
 #        plt.figure()
 #        plt.scatter(array[:,0],array[:,1],c=np.log10(array[:,2]))
@@ -171,7 +175,7 @@ plt.xlabel('DWR$_{Ku,Ka}$')
 #        ax.set_yscale('log')
 
 
-melt2perc = lambda x: int(int(x)*0.01)
+
 mm = [melt2perc(x) for x in melt_fracs]
 
 plt.figure()        
@@ -183,6 +187,7 @@ plt.ylabel('LDR   Ka   [dBZ]')
 plt.legend(title='melted fraction')
 plt.grid()
 plt.savefig('ldr_melt.pdf')
+plt.savefig('ldr_melt.png',dpi=600)
 
 plt.figure()        
 for lam in datatot.Dm.drop_duplicates()[0:-1:3]:
@@ -193,3 +198,4 @@ plt.ylabel('LDR   Ka   [dBZ]')
 plt.legend(title='Dm')
 plt.grid()
 plt.savefig('ldr_dm.pdf')
+plt.savefig('ldr_dm.png',dpi=600)
