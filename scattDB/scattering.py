@@ -128,9 +128,11 @@ class ScattADDA(Scatterer):
         back = self.mueller.loc[180.0]
         #self.mueller.set_index('theta',drop=True,inplace=True)
         lines = logf.readlines()
+        self.lines=lines
         CSlines = csf.readlines()
         
-        self.Ndipoles = int(lines[9].split()[-1])
+        Nstring = [x for x in lines if 'Total number of occupied dipoles' in x][0]
+        self.Ndipoles = int(Nstring.split()[-1])
         self.wl = float(lines[3].split()[-1])*1e-3 # convert to millimeters
         #self.d = float(lines[7].split()[-1])
         self.k = 2*np.pi/self.wl
