@@ -29,8 +29,8 @@ import pandas as pd
 import numpy as np
 from scipy import interpolate
 
-#def interpolate(x,x1,x0,y1,y0):
-#    return y0+(x-x0)*(y1-y0)/(x1-x0)
+def get_line(lines,string):
+    return [x for x in lines if string in x][0]
 
 class Scatterer(object):
     def __init__(self):
@@ -131,9 +131,9 @@ class ScattADDA(Scatterer):
         self.lines=lines
         CSlines = csf.readlines()
         
-        Nstring = [x for x in lines if 'Total number of occupied dipoles' in x][0]
+        Nstring = get_line(lines,'Total number of occupied dipoles')
         self.Ndipoles = int(Nstring.split()[-1])
-        self.wl = float(lines[3].split()[-1])*1e-3 # convert to millimeters
+        self.wl = float(get_line(lines,'lambda:').split()[-1])*1e-3 # convert to millimeters
         #self.d = float(lines[7].split()[-1])
         self.k = 2*np.pi/self.wl
 
@@ -144,8 +144,8 @@ class ScattADDA(Scatterer):
         #self.g = float(qs[4])
         #self.phase = pd.read_csv(filename,sep='\s+',header=37)
         self.sig_bk  = 2*np.pi*(back.s11+back.s22+2*back.s12)/self.k**2.
-        self.sig_abs = float(CSlines[2].split()[-1])
-        self.sig_ext = float(CSlines[0].split()[-1])
+        self.sig_abs = float(CSlines[2].split()[-1])*1e-6 # convert to millimeters
+        self.sig_ext = float(CSlines[0].split()[-1])*1e-6 # convert to millimeters
         self.sig_sca = self.sig_ext - self.sig_abs 
         self.aeff = np.sqrt(self.sig_sca/(np.pi*self.Qs))
         #idx_bk = self.phase[(self.phase.theta == 180.0) & (self.phase.phi == 0.0)].index[0]
@@ -153,7 +153,26 @@ class ScattADDA(Scatterer):
 
         self.S = np.array([[back.s11,back.s12],[back.s21,back.s22]]) # TODO extend to the full 4x4
         self.Z = self.S/self.k**2.
-
+        
+    @property
+    def ldr(self, h_pol=True):
+        """
+        Linear depolarizarion ratio (LDR) for ADDA particles???
+    
+        Args:
+            scatterer: a Scatterer instance.
+            h_pol: If True (default), return LDR_h.
+            If False, return LDR_v.
+    
+        Returns:
+           The LDR.
+        """
+        Z = self.Z
+        if h_pol:
+            return (Z[0,0]-Z[1,1])/(Z[0,0]+Z[1,1]+Z[0,1])
+        else:
+            return (Z[0,0]-Z[1,1])/(Z[0,0]+Z[1,1]-Z[0get_vla,1])
+            
 class ScattDist(object):
     """
     This is a distribution of particles.
