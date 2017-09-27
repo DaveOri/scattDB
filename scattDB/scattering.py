@@ -171,7 +171,7 @@ class ScattADDA(Scatterer):
         if h_pol:
             return (Z[0,0]-Z[1,1])/(Z[0,0]+Z[1,1]+Z[0,1])
         else:
-            return (Z[0,0]-Z[1,1])/(Z[0,0]+Z[1,1]-Z[0get_vla,1])
+            return (Z[0,0]-Z[1,1])/(Z[0,0]+Z[1,1]-Z[0,1])
             
 class ScattDist(object):
     """
