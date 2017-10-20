@@ -5,41 +5,98 @@ Created on Mon Jul 24 15:06:26 2017
 @author: dori
 """
 
-from scattDB import shape
-from glob import glob
+#from scattDB import shape
+#from glob import glob
 import pandas as pd
 import numpy as np
 import matplotlib.pyplot as plt
-from scattDB import scattering
+#from scattDB import scattering
 from scattDB import psd
-
 from scipy import integrate
 
-shapefolder = '/work/DBs/melted_aggregate_shape_files/'
-scattfolder = '/work/DBs/melted_aggregate_scaled_reff_Ku_Ka_W_89_165_183/'
-
-#melt_fracs = ['000001','001010','002004','004988','007029']
-#melt_fracs = ['000001','001017','001315']
-melt_fracs = ['000001','001010','002004','003030','004073','004988','007029']
-freqs = ['13.4','35.6','94']
-
-melt2perc = lambda x: int(int(x)*0.01)
-
-Zlab = {'13.4':'ZKu','35.6':'ZKa','94':'ZW'}
-Llab = {'13.4':'LKu','35.6':'LKa','94':'LW'}
+plt.close('all')
 
 c = 299792458000. # mm/s
 lamx = c/(9.6*1e9)
 lamu = c/(13.4*1e9)
 lama = c/(35.6*1e9)
-lamW = c/(94*1e9)
+lamw = c/(94*1e9)
 coeffx = lamx**4./(0.93*np.pi**5.)
 coeffu = lamu**4./(0.95*np.pi**5.)
 coeffa = lama**4./(0.95*np.pi**5.)
-coeffW = lamW**4./(0.75*np.pi**5.)
+coeffw = lamw**4./(0.75*np.pi**5.)
 
-lambdas = 1.0/np.linspace(0.1,3.5,20) #13
-mu = 3.
+tablesfolder = '/work/DBs/scattDB/tables/'
+authors = ['DO','BJ','JL']
+author = 'DO'
+melt = '00'
+
+dataDO = pd.read_csv(tablesfolder+author+'_'+melt+'.csv')
+dataDO.drop('Unnamed: 0',axis=1,inplace=True)
+
+author = 'BJ'
+dataBJ2 = pd.read_csv(tablesfolder+author+'_agg2_0'+'.csv')
+dataBJ2.drop('Unnamed: 0',axis=1,inplace=True)
+
+dataBJ3 = pd.read_csv(tablesfolder+author+'_agg3_0'+'.csv')
+dataBJ3.drop('Unnamed: 0',axis=1,inplace=True)
+
+author = 'dataJL_A0.0'
+dataJL = pd.read_csv(tablesfolder+author+'.csv')
+
+#plt.figure()
+#ax = plt.gca()
+#ax.scatter(dataBJ2.Dmax,dataBJ2.Ku,label='BJ2')
+#ax.scatter(dataBJ3.Dmax,dataBJ3.Ku,label='BJ3')
+#ax.scatter(dataJL.Dmax, 1e6*dataJL.Ub, label='JL')
+#ax.scatter(dataDO.Dmax, dataDO.Ku, label='DO')
+#ax.legend()
+#ax.grid()
+
+def Z(D,s,psd):
+    conc = psd(D)
+    intZ = np.multiply(conc,s)
+    return integrate.trapz(intZ,D)
+    
+def f3plot(data,title='title'):
+    D0s = np.linspace(0.1,20.,20)
+    mus = [-1.,0.,1.,2.,3.]
+    marks=[',','+','h','v','.']
+    plt.figure()
+    ax = plt.gca()
+    for mu,m in zip(mus,marks):
+        XKa = []
+        KaW = []
+        for D0 in D0s:
+            conc  = psd.GammaPSD(D0=D0,Nw=1.,mu=mu,D_max=22)
+            Zx = 10.*np.log10(coeffx*Z(data.Dmax,data.X,conc))
+            Zu = 10.*np.log10(coeffu*Z(data.Dmax,data.Ku,conc))
+            if np.isnan(Zx):
+                Zx = Zu
+            Za = 10.*np.log10(coeffa*Z(data.Dmax,data.Ka,conc))
+            Zw = 10.*np.log10(coeffw*Z(data.Dmax,data.W,conc))
+            #LDR= 10.*np.log10(Z(data.Dmax,data.ldr,conc))
+            XKa.append(Zx-Za)
+            KaW.append(Za-Zw)
+        s = ax.scatter(KaW,XKa,c=D0s,marker=m,label='$\mu=$ '+str(mu))
+    ax.legend()
+    ax.grid()
+    ax.set_xlabel('DWR$_{Ka,W}$')
+    ax.set_ylabel('DWR$_{X,Ka}$')
+    ax.set_xlim([-1,15])
+    ax.set_ylim([0,22])
+    colorbar = plt.colorbar(mappable=s,ax=ax)
+    colorbar.set_label('$D_0$')
+    ax.set_title(title)
+
+f3plot(dataDO,'Davide dry')
+f3plot(dataBJ2,'BJ2 dry')
+f3plot(dataBJ3,'BJ3 dry')
+dataJL.columns = ['Dmax','model','ELWP','mkg','Dmax.1','Rgyr','ar','riming', 'Xa','Xs', 'X', 'Xe', 'Ua', 'Us', 'Ku', 'Ue', 'Aa', 'As', 'Ka', 'Ae', 'Wa','Ws', 'W', 'We']
+f3plot(dataJL,'Jussi unrimed')
+
+#%%
+
 
 cols = ['Ku_Ka','Ka_W','LDRka','melt','Dm']
 

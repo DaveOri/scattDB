@@ -27,7 +27,7 @@ indexes = np.arange(10000)
 for melt_frac in melt_fracs:
     data = pd.DataFrame(index=indexes, columns=cols)
     for freq in freqs:
-        scatt_folders = sorted(glob(scattfolder+'*aggregate2*'+'_f'+melt_frac+'_*'+freq))
+        scatt_folders = sorted(glob(scattfolder+'*aggregate3*'+'_f'+melt_frac+'_*'+freq))
         dist = scattering.ScattDist()
         freqidx = Zlab[freq]
         i=0
@@ -50,7 +50,7 @@ for melt_frac in melt_fracs:
                 i = i + 1
     data.sort('Dmax',inplace=True)
     data.dropna(how='all',inplace=True)
-    data.to_csv('tables/BJ_agg2_'+str(melt2perc(melt_frac))+'.csv')
+    data.to_csv('tables/BJ_agg3_'+str(melt2perc(melt_frac))+'.csv')
 
 
 freqs = {'000':'C','001':'X','002':'Ku','003':'Ka','004':'W','005':'89','006':'157'}
