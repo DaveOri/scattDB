@@ -10,9 +10,7 @@ from glob import glob
 import pandas as pd
 import numpy as np
 from scattDB import scattering
-#from scattDB import psd
 
-#from scipy import integrate
 shapefolder = '/work/DBs/melted_aggregate_shape_files/'
 scattfolder = '/work/DBs/melted_aggregate_scaled_reff_Ku_Ka_W_89_165_183/'
 
@@ -24,18 +22,6 @@ freqs = ['13.4','35.6','94']
 melt2perc = lambda x: int(int(x)*0.01)
 
 Zlab = {'13.4':'Ku','35.6':'Ka','94':'W'}
-Llab = {'13.4':'LKu','35.6':'LKa','94':'LW'}
-
-c = 299792458000. # mm/s
-lamx = c/(9.6*1e9)
-lamu = c/(13.4*1e9)
-lama = c/(35.6*1e9)
-lamW = c/(94*1e9)
-coeffx = lamx**4./(0.93*np.pi**5.)
-coeffu = lamu**4./(0.95*np.pi**5.)
-coeffa = lama**4./(0.95*np.pi**5.)
-coeffW = lamW**4./(0.75*np.pi**5.)
-
 cols = ['Dmax','X','Ku','Ka','W','ldr']
 indexes = np.arange(10000)
 for melt_frac in melt_fracs:
