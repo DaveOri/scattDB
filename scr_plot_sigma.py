@@ -38,7 +38,8 @@ coeffu = lamu**4./(0.95*np.pi**5.)
 coeffa = lama**4./(0.95*np.pi**5.)
 coeffW = lamW**4./(0.75*np.pi**5.)
 
-lambdas = 1.0/np.linspace(0.5,3,20) #13
+lambdas = 1.0/np.linspace(0.1,3.5,20) #13
+mu = 3.
 
 cols = ['Ku_Ka','Ka_W','LDRka','melt','Dm']
 
@@ -91,7 +92,8 @@ for melt_frac in melt_fracs:
     #ax3 = plt.subplot(3,1,2)
     #ax4 = plt.subplot(3,1,3)
     for lam in lambdas:
-        conc  = psd.ExponentialPSD(Lambda=lam,D_max=max(sizes)+0.1)
+#        conc  = psd.ExponentialPSD(Lambda=lam,D_max=max(sizes)+0.1)
+        conc  = psd.GammaPSD(D0=(3.67+mu)/lam,Nw=1.,mu=mu,D_max=max(sizes)+0.1)
         concD = conc(sizes) 
         propsu = dists['13.4'](sizes,['radar_xsect','ldr'])
         propsa = dists['35.6'](sizes,['radar_xsect','ldr'])
@@ -123,12 +125,12 @@ for melt_frac in melt_fracs:
     #ax2.set_title('Ku'+melt_frac)
     #ax3.set_title('Ka')
     #ax4.set_title('W')
-    s=ax.scatter(data['Ka_W'],data['Ku_Ka'],c=data['LDRka'],label=melt2perc(melt_frac))
+    s=ax.scatter(data['Ka_W'],data['Ku_Ka'],label=melt2perc(melt_frac))#,c=data['LDRka'])
     #data.plot(x='Ka_W',y='Ku_Ka',kind='scatter',ax=ax,label=melt_frac)
     datatot = datatot.append(data)
 
-ax.legend()  
-plt.colorbar(mappable=s,ax=ax)
+########ax.legend()  
+#plt.colorbar(mappable=s,ax=ax)
 
 ###############################################################################
 
@@ -183,8 +185,8 @@ data10['KaW' ] = coeffa*data10.Ka/(coeffW*data10.W)
 plt.figure()
 plt.plot(data00.Dmax,data00.ldr)
 plt.plot(data10.Dmax,data10.ldr)
-ax = plt.gca()
-ax.set_yscale('log')
+axx = plt.gca()
+axx.set_yscale('log')
 
 plt.figure()
 plt.plot(data00.Dmax,(data00.XKa),label='0 XKa')
@@ -194,18 +196,18 @@ plt.plot(data10.Dmax,(data10.KuKa),label='10 KuKa')
 plt.plot(data00.Dmax,(data00.KaW),label='0 KaW')
 plt.plot(data10.Dmax,(data10.KaW),label='10 KaW')
 plt.legend()
-ax = plt.gca()
-ax.set_yscale('log')
+axx = plt.gca()
+axx.set_yscale('log')
 
 plt.figure()
 plt.plot(data00.Dmax,(data10.XKa)-(data00.XKa),label='10-0 XKa')
 plt.plot(data00.Dmax,(data10.KuKa)-(data00.KuKa),label='10-0 KuKa')
 plt.plot(data00.Dmax,(data10.KaW)-(data00.KaW),label='10-0 KaW')
 plt.legend()
-ax = plt.gca()
-ax.set_yscale('log')
+axx = plt.gca()
+axx.set_yscale('log')
 
-lambdas = 1.0/np.linspace(0.05,4,5) #13
+#lambdas = 1.0/np.linspace(0.05,4,5) #13
 Nexp = lambda l,x: np.exp(-l*x)
 
 Z00 = pd.DataFrame(index=lambdas,columns=['Dm','X','Ku','Ka','W','XKa','KuKa','KaW','ldr'])
@@ -215,16 +217,22 @@ Z10 = pd.DataFrame(index=lambdas,columns=['Dm','X','Ku','Ka','W','XKa','KuKa','K
 
 
 for lam in lambdas:
-     conc00 = Nexp(lam,data00.Dmax)
-     conc10 = Nexp(lam,data10.Dmax)
-     plt.figure()
-     ax = plt.gca()
-     ax.plot(data00.Dmax,(data00.X*conc00*coeffx ), label='X ')
-     ax.plot(data00.Dmax,(data00.Ku*conc00*coeffu), label='Ku')
-     ax.plot(data00.Dmax,(data00.Ka*conc00*coeffa), label='Ka')
-     ax.plot(data00.Dmax,(data00.W*conc00*coeffW ), label='W ')
-     ax.set_yscale('log')
-     ax.legend()
+#     conc  = psd.ExponentialPSD(Lambda=lam,D_max=max(sizes)+0.1)
+     D0 = (3.67+mu)/lam
+     print(D0)
+     conc  = psd.GammaPSD(D0=D0,Nw=1.,mu=mu,D_max=max(sizes)+0.1)
+#     conc00 = Nexp(lam,data00.Dmax)
+#     conc10 = Nexp(lam,data10.Dmax)
+     conc00 = conc(data00.Dmax)
+     conc10 = conc(data10.Dmax)
+     #plt.figure()
+     #axx = plt.gca()
+     #axx.plot(data00.Dmax,(data00.X*conc00*coeffx ), label='X ')
+     #axx.plot(data00.Dmax,(data00.Ku*conc00*coeffu), label='Ku')
+     #axx.plot(data00.Dmax,(data00.Ka*conc00*coeffa), label='Ka')
+     #axx.plot(data00.Dmax,(data00.W*conc00*coeffW ), label='W ')
+     #axx.set_yscale('log')
+     #axx.legend()
      Z00.loc[lam,'X' ] = 10.0*np.log10((data00.X*conc00 ).sum()*coeffx)
      Z00.loc[lam,'Ku'] = 10.0*np.log10((data00.Ku*conc00).sum()*coeffu)
      Z00.loc[lam,'Ka'] = 10.0*np.log10((data00.Ka*conc00).sum()*coeffa)
@@ -246,7 +254,7 @@ Z10['KuKa'] = Z10.Ku-Z10.Ka
 Z10['KaW' ] = Z10.Ka-Z10.W
 
 plt.figure()
-ax = plt.gca()
+axx = plt.gca()
 plt.plot(Z00.KaW,Z00.XKa,label='dry ')
 plt.plot(Z10.KaW,Z10.XKa,label='10 %')
 plt.legend()
@@ -254,16 +262,68 @@ plt.legend()
 ###############################################################################
 
 plt.figure()
-plt.scatter(datatot['Ka_W'],datatot['Ku_Ka'],c=datatot['LDRka'],cmap=plt.cm.jet)
-plt.scatter(Z00.KaW,Z00.XKa,c=Z00.ldr,cmap=plt.cm.jet)
-plt.scatter(Z10.KaW,Z10.XKa,c=Z10.ldr,cmap=plt.cm.jet)
-plt.scatter(Z00.KaW,Z00.KuKa,c=Z00.ldr,cmap=plt.cm.jet)
-plt.scatter(Z10.KaW,Z10.KuKa,c=Z10.ldr,cmap=plt.cm.jet)
-plt.title('3freq + LDR')
-plt.colorbar(label='LDR')
+plt.scatter(datatot['Ka_W'],datatot['Ku_Ka'])#,c=datatot['LDRka'],cmap=plt.cm.jet)
+plt.scatter(Z00.KaW,Z00.XKa)#,c=Z00.ldr,cmap=plt.cm.jet)
+plt.scatter(Z10.KaW,Z10.XKa)#,c=Z10.ldr,cmap=plt.cm.jet)
+plt.scatter(Z00.KaW,Z00.KuKa)#,c=Z00.ldr,cmap=plt.cm.jet)
+plt.scatter(Z10.KaW,Z10.KuKa)#,c=Z10.ldr,cmap=plt.cm.jet)
+plt.title('3freq')# + LDR')
+#plt.colorbar(label='LDR')
 plt.xlabel('DWR$_{Ka,W}$')
 plt.ylabel('DWR$_{RAY,Ka}$')
 plt.savefig('3freq+LDR.png',dpi=600)
+
+ax.plot(Z00.KaW,Z00.XKa,label='X dry')#,c=Z00.ldr,cmap=plt.cm.jet)
+ax.plot(Z10.KaW,Z10.XKa,label='X 10%')#,c=Z10.ldr,cmap=plt.cm.jet)
+ax.plot(Z00.KaW,Z00.KuKa,label='Ku dry')#,c=Z00.ldr,cmap=plt.cm.jet)
+ax.plot(Z10.KaW,Z10.KuKa,label='Ku 10%')#,c=Z10.ldr,cmap=plt.cm.jet)
+ax.legend()
+ax.grid()
+ax.set_xlim([0,20])
+ax.set_ylim([0,22])
+ax.set_title('mu =  '+str(mu))
+
+
+plt.figure()
+ag = plt.gca()
+D0s = np.linspace(0.05,8,10)
+Z00 = pd.DataFrame(index=D0s,columns=['Dm','X','Ku','Ka','W','XKa','KuKa','KaW','ldr'])
+Z10 = pd.DataFrame(index=D0s,columns=['Dm','X','Ku','Ka','W','XKa','KuKa','KaW','ldr'])
+for mu in [-1.,0.,1.,2.,3.,4.]:
+    for D0 in D0s:
+        print(D0)
+        conc  = psd.GammaPSD(D0=D0,Nw=1.,mu=mu,D_max=max(sizes)+0.1)
+        conc00 = conc(data00.Dmax)
+        conc10 = conc(data10.Dmax)
+        Z00.loc[D0,'X' ] = 10.0*np.log10((data00.X*conc00 ).sum()*coeffx)
+        Z00.loc[D0,'Ku'] = 10.0*np.log10((data00.Ku*conc00).sum()*coeffu)
+        Z00.loc[D0,'Ka'] = 10.0*np.log10((data00.Ka*conc00).sum()*coeffa)
+        Z00.loc[D0,'W' ] = 10.0*np.log10((data00.W*conc00 ).sum()*coeffW)
+        Z00.loc[D0,'ldr' ] = 10.0*np.log10((data00.ldr*conc00 ).sum())
+#        Z10.loc[lam,'X' ] = 10.0*np.log10((data10.X*conc10 ).sum()*coeffx)
+#        Z10.loc[lam,'Ku'] = 10.0*np.log10((data10.Ku*conc10).sum()*coeffu)
+#        Z10.loc[lam,'Ka'] = 10.0*np.log10((data10.Ka*conc10).sum()*coeffa)
+#        Z10.loc[lam,'W' ] = 10.0*np.log10((data10.W*conc10 ).sum()*coeffW)
+#        Z10.loc[lam,'ldr' ] = 10.0*np.log10((data10.ldr*conc10 ).sum())
+    Z00['XKa' ] = Z00.X-Z00.Ka
+    Z00['KuKa'] = Z00.Ku-Z00.Ka
+    Z00['KaW' ] = Z00.Ka-Z00.W
+    Z10['XKa' ] = Z10.X-Z10.Ka
+    Z10['KuKa'] = Z10.Ku-Z10.Ka
+    Z10['KaW' ] = Z10.Ka-Z10.W
+    ag.plot(Z00.KaW,Z00.XKa,label='mu= '+str(mu))#,c=Z00.ldr,cmap=plt.cm.jet)
+    #ax.plot(Z10.KaW,Z10.XKa,label='X 10%')#,c=Z10.ldr,cmap=plt.cm.jet)
+    #ax.plot(Z00.KaW,Z00.KuKa,label='Ku dry')#,c=Z00.ldr,cmap=plt.cm.jet)
+    #ax.plot(Z10.KaW,Z10.KuKa,label='Ku 10%')#,c=Z10.ldr,cmap=plt.cm.jet)
+ag.legend()
+ag.grid()
+ag.set_xlabel('DWR$_{Ka W}$')
+ag.set_ylabel('DWR$_{X Ka}$')
+
+
+
+
+
         
 #        plt.figure()
 #        plt.scatter(array[:,0],array[:,1],c=np.log10(array[:,2]))

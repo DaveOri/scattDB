@@ -207,14 +207,7 @@ class ScattDist(object):
                                       fill_value=(y[0],y[-1]),
                                       assume_sorted=True)
         return interp(D)
-        
-        #lower = dist[dist[:,0] <= D]
-        #upper = dist[dist[:,0] >= D]
-        #low = lower[lower[:,0].argmin()]
-        #up  = upper[upper[:,0].argmax()]
-        #return interpolate(D,up[0],low[0],up[1:],low[1:])
-
-        
+               
     def get_distro(self, quantity):
         """
         This function return the numpy array of the quantities asched in the list quantity.
