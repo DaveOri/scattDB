@@ -70,7 +70,7 @@ for subfolder in subfolders:
         scatt = scattering.ScattADDA(logfile=sfld+'/log',muellerfile=sfld+'/mueller',
                              csfile=sfld+'/CrossSec', D=D)
         data00.loc[Dstr,freqs[freqidx]] = scatt.sig_bk
-        data00.loc[Dstr,freqs[freqidx]] = scatt.mass
+        data00.loc[Dstr,'mkg'] = scatt.mass
         if freqidx == '003':
             data00.loc[Dstr,'ldr'] = scatt.ldr
 
@@ -87,7 +87,7 @@ for subfolder in subfolders:
         scatt = scattering.ScattADDA(logfile=sfld+'/log',muellerfile=sfld+'/mueller',
                              csfile=sfld+'/CrossSec', D=D)
         data10.loc[Dstr,freqs[freqidx]] = scatt.sig_bk
-        data10.loc[Dstr,freqs[freqidx]] = scatt.mass
+        data10.loc[Dstr,'mkg'] = scatt.mass
         if freqidx == '003':
             data10.loc[Dstr,'ldr'] = scatt.ldr
 
