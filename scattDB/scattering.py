@@ -136,7 +136,7 @@ class ScattADDA(Scatterer):
         self.wl = float(get_line(lines,'lambda:').split()[-1])*1e-3 # convert to millimeters
         self.dpl= float(get_line(lines,'Dipoles/lambda:').split()[-1])
         self.d = self.wl/self.dpl
-        self.mass = self.Ndipoles*self.d**3.0*0.917e-3
+        self.mass = 0.917e-3*self.Ndipoles*self.d**3.0
         self.k = 2*np.pi/self.wl
 
         self.Qe = float(CSlines[1].split()[-1])
