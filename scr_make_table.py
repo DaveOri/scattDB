@@ -22,12 +22,12 @@ freqs = ['13.4','35.6','94']
 melt2perc = lambda x: int(int(x)*0.01)
 
 Zlab = {'13.4':'Ku','35.6':'Ka','94':'W'}
-cols = ['Dmax','X','Ku','Ka','W','ldr']
+cols = ['Dmax','X','Ku','Ka','W','ldr','mkg']
 indexes = np.arange(10000)
 for melt_frac in melt_fracs:
     data = pd.DataFrame(index=indexes, columns=cols)
     for freq in freqs:
-        scatt_folders = sorted(glob(scattfolder+'*aggregate3*'+'_f'+melt_frac+'_*'+freq))
+        scatt_folders = sorted(glob(scattfolder+'*aggregate2*'+'_f'+melt_frac+'_*'+freq))
         dist = scattering.ScattDist()
         freqidx = Zlab[freq]
         i=0
@@ -45,12 +45,13 @@ for melt_frac in melt_fracs:
                 scatt.melt = shp.get_melted_fraction()
                 data.iloc[i][Zlab[freq]] = scatt.sig_bk
                 data.iloc[i]['Dmax'] = scatt.D
+                data.iloc[i]['mkg'] = scatt.mass
                 if freq == '35.6':
                     data.iloc[i]['ldr'] = scatt.ldr
                 i = i + 1
     data.sort('Dmax',inplace=True)
     data.dropna(how='all',inplace=True)
-    data.to_csv('tables/BJ_agg3_'+str(melt2perc(melt_frac))+'.csv')
+    data.to_csv('tables/BJ_agg2_'+str(melt2perc(melt_frac))+'.csv')
 
 
 freqs = {'000':'C','001':'X','002':'Ku','003':'Ka','004':'W','005':'89','006':'157'}
@@ -69,6 +70,7 @@ for subfolder in subfolders:
         scatt = scattering.ScattADDA(logfile=sfld+'/log',muellerfile=sfld+'/mueller',
                              csfile=sfld+'/CrossSec', D=D)
         data00.loc[Dstr,freqs[freqidx]] = scatt.sig_bk
+        data00.loc[Dstr,freqs[freqidx]] = scatt.mass
         if freqidx == '003':
             data00.loc[Dstr,'ldr'] = scatt.ldr
 
@@ -85,6 +87,7 @@ for subfolder in subfolders:
         scatt = scattering.ScattADDA(logfile=sfld+'/log',muellerfile=sfld+'/mueller',
                              csfile=sfld+'/CrossSec', D=D)
         data10.loc[Dstr,freqs[freqidx]] = scatt.sig_bk
+        data10.loc[Dstr,freqs[freqidx]] = scatt.mass
         if freqidx == '003':
             data10.loc[Dstr,'ldr'] = scatt.ldr
 
