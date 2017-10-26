@@ -22,12 +22,12 @@ freqs = ['13.4','35.6','94']
 melt2perc = lambda x: int(int(x)*0.01)
 
 Zlab = {'13.4':'Ku','35.6':'Ka','94':'W'}
-cols = ['Dmax','X','Ku','Ka','W','ldr','mkg']
+cols = ['Dmax','X','Ku','Ka','W','ldr','xpolKa','mkg']
 indexes = np.arange(10000)
 for melt_frac in melt_fracs:
     data = pd.DataFrame(index=indexes, columns=cols)
     for freq in freqs:
-        scatt_folders = sorted(glob(scattfolder+'*aggregate2*'+'_f'+melt_frac+'_*'+freq))
+        scatt_folders = sorted(glob(scattfolder+'*aggregate3*'+'_f'+melt_frac+'_*'+freq))
         dist = scattering.ScattDist()
         freqidx = Zlab[freq]
         i=0
@@ -48,10 +48,11 @@ for melt_frac in melt_fracs:
                 data.iloc[i]['mkg'] = scatt.mass
                 if freq == '35.6':
                     data.iloc[i]['ldr'] = scatt.ldr
+                    data.iloc[i]['xpolKa'] = scatt.xpol_xsect
                 i = i + 1
     data.sort('Dmax',inplace=True)
     data.dropna(how='all',inplace=True)
-    data.to_csv('tables/BJ_agg2_'+str(melt2perc(melt_frac))+'.csv')
+    data.to_csv('tables/BJ_agg3_'+str(melt2perc(melt_frac))+'.csv')
 
 
 freqs = {'000':'C','001':'X','002':'Ku','003':'Ka','004':'W','005':'89','006':'157'}
@@ -73,6 +74,7 @@ for subfolder in subfolders:
         data00.loc[Dstr,'mkg'] = scatt.mass
         if freqidx == '003':
             data00.loc[Dstr,'ldr'] = scatt.ldr
+            data00.loc[Dstr,'xpolKa'] = scatt.xpol_xsect
 
 scattfolder = '/work/DBs/10/'
 subfolders = glob(scattfolder+'*')
@@ -90,6 +92,7 @@ for subfolder in subfolders:
         data10.loc[Dstr,'mkg'] = scatt.mass
         if freqidx == '003':
             data10.loc[Dstr,'ldr'] = scatt.ldr
+            data10.loc[Dstr,'xpolKa'] = scatt.xpol_xsect
 
 data00 = data00.astype(float)
 data10 = data10.astype(float)
