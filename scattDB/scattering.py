@@ -52,7 +52,6 @@ class Scatterer(object):
         """Radar cross section for the current setup.    
     
         Args:
-            scatterer: a Scatterer instance.
             h_pol: If True (default), use horizontal polarization.
             If False, use vertical polarization.
     
@@ -71,7 +70,6 @@ class Scatterer(object):
         Linear depolarizarion ratio (LDR) for the current setup.
     
         Args:
-            scatterer: a Scatterer instance.
             h_pol: If True (default), return LDR_h.
             If False, return LDR_v.
     
@@ -82,7 +80,24 @@ class Scatterer(object):
         if h_pol:
             return (Z[0,0]-Z[0,1]+Z[1,0]-Z[1,1])/(Z[0,0]-Z[0,1]-Z[1,0]+Z[1,1])
         else:
-            return (Z[0,0]+Z[0,1]-Z[1,0]-Z[1,1])/(Z[0,0]+Z[0,1]+Z[1,0]+Z[1,1])        
+            return (Z[0,0]+Z[0,1]-Z[1,0]-Z[1,1])/(Z[0,0]+Z[0,1]+Z[1,0]+Z[1,1])
+            
+    @property
+    def xpol_xsect(self, h_pol=True):
+        """
+        Cross polarized radar cross section for the current setup
+        Args:
+            h_pol: If True (default), use horizontal polarization.
+            If False, use vertical polarization.
+    
+        Returns:
+            The radar cross section.
+        """
+        Z = self.Z
+        if h_pol:
+            return 2.*np.pi*(Z[0,0]-Z[0,1]+Z[1,0]-Z[1,1])
+        else:
+            return 2.*np.pi*(Z[0,0]+Z[0,1]-Z[1,0]-Z[1,1])
 
 class ScattDDSCAT(Scatterer):
     def __init__(self, filename=None, D=None, melt=0.0, mass=None):
@@ -156,24 +171,24 @@ class ScattADDA(Scatterer):
         self.S = np.array([[back.s11,back.s12],[back.s21,back.s22]]) # TODO extend to the full 4x4
         self.Z = self.S/self.k**2.
         
-    @property
-    def ldr(self, h_pol=True):
-        """
-        Linear depolarizarion ratio (LDR) for ADDA particles???
-    
-        Args:
-            scatterer: a Scatterer instance.
-            h_pol: If True (default), return LDR_h.
-            If False, return LDR_v.
-    
-        Returns:
-           The LDR.
-        """
-        Z = self.Z
-        if h_pol:
-            return (Z[0,0]-Z[1,1])/(Z[0,0]+Z[1,1]+Z[0,1])
-        else:
-            return (Z[0,0]-Z[1,1])/(Z[0,0]+Z[1,1]-Z[0,1])
+#    @property
+#    def ldr(self, h_pol=True):
+#        """
+#        Linear depolarizarion ratio (LDR) for ADDA particles???
+#    
+#        Args:
+#            scatterer: a Scatterer instance.
+#            h_pol: If True (default), return LDR_h.
+#            If False, return LDR_v.
+#    
+#        Returns:
+#           The LDR.
+#        """
+#        Z = self.Z
+#        if h_pol:
+#            return (Z[0,0]-Z[1,1] + Z[1,0]-Z[0,1])/(Z[0,0]+Z[1,1] - Z[1,0]-Z[0,1])
+#        else:
+#            return (Z[0,0]-Z[1,1] - Z[1,0]+Z[0,1])/(Z[0,0]+Z[1,1] + Z[1,0]+Z[0,1])
             
 class ScattDist(object):
     """
