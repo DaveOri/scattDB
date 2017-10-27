@@ -56,6 +56,9 @@ dataDO.drop('Unnamed: 0',axis=1,inplace=True)
 meltDO = pd.read_csv(tablesfolder+author+'_'+'10'+'.csv')
 meltDO.drop('Unnamed: 0',axis=1,inplace=True)
 
+dataJT = pd.read_csv(tablesfolder+'jani_fractals/JT_fractals.csv')
+dataJT.drop('Unnamed: 0',axis=1,inplace=True)
+
 author = 'BJ'
 dataBJ2 = pd.read_csv(tablesfolder+author+'_agg2_0'+'.csv')
 dataBJ2.drop('Unnamed: 0',axis=1,inplace=True)
