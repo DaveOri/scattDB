@@ -26,7 +26,7 @@ coeffu = lamu**4./(0.95*np.pi**5.)
 coeffa = lama**4./(0.95*np.pi**5.)
 coeffw = lamw**4./(0.75*np.pi**5.)
 
-tablesfolder = '/work/DBs/scattDB/tables/'
+tablesfolder = 'tables/'
 authors = ['DO','BJ','JL']
 author = 'DO'
 melt = '00'
@@ -43,7 +43,7 @@ dataBJ2.drop('Unnamed: 0',axis=1,inplace=True)
 dataBJ3 = pd.read_csv(tablesfolder+author+'_agg3_0'+'.csv')
 dataBJ3.drop('Unnamed: 0',axis=1,inplace=True)
 
-author = 'dataJL_A0.0'
+author = 'dataJL_B1.0'
 dataJL = pd.read_csv(tablesfolder+author+'.csv')
 
 plt.figure()
