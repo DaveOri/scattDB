@@ -14,6 +14,9 @@ import matplotlib.pyplot as plt
 from scattDB import psd
 from scipy import integrate
 
+Br07 = lambda x:0.08900e-3*x**2.1
+BF95 = lambda x:0.02414e-3*x**1.9
+
 RHfile = '/home/dori/develop/scatdb/share/scatdb.csv'
 dataRH = pd.read_csv(RHfile)
 dataRH = dataRH[dataRH.flaketype == 20]
@@ -58,6 +61,7 @@ meltDO.drop('Unnamed: 0',axis=1,inplace=True)
 
 dataJT = pd.read_csv(tablesfolder+'jani_fractals/JT_fractals.csv')
 dataJT.drop('Unnamed: 0',axis=1,inplace=True)
+dataJT.mkg = Br07(dataJT.Dmax)
 
 author = 'BJ'
 dataBJ2 = pd.read_csv(tablesfolder+author+'_agg2_0'+'.csv')
@@ -82,9 +86,6 @@ dataBJ3.drop('Unnamed: 0',axis=1,inplace=True)
 author = 'dataJL_A0.5'
 author = 'dataJL_A0.0'
 dataJL = pd.read_csv(tablesfolder+author+'.csv')
-
-Br07 = lambda x:0.08900e-3*x**2.1
-BF95 = lambda x:0.02414e-3*x**1.9
 
 plt.figure()
 ax = plt.gca()
@@ -271,6 +272,12 @@ dataJL.W  = dataJL.W*1.0e6
 ax = f3plot(dataDO,'Davide dry',color='ldr')
 f3plot(meltDO,'Davide 0 - 10 %',color='ldr',ax=ax)
 ax.grid()
+
+f3plot(dataJT,'JT fractals')
+f3plot(dataJT,'JT fractals',color='ldr')
+f3profile(dataJT,title='JT fractals',what='LDR')
+f3profile(dataJT,title='JT fractals')
+f3profile(dataJT,title='JT fractals',what='DWR')
 
 ax = f3plot(dataBJ2,'BJ2 dry',color='ldr')
 f3plot(dataBJ2_10,'BJ2 10%',color='ldr',ax=ax)

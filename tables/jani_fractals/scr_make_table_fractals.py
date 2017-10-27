@@ -18,7 +18,7 @@ fileW  = pd.read_csv('ice_fractal_W.dat',sep=' ',names=cols)
 newcols = ['Dmax','X','Ku','Ka','W','ldr','xpolKa','mkg']
 data = pd.DataFrame(index=fileC.index,columns=newcols)
 for i in fileC.index:
-    data.loc[i] = fileC.loc[i,'Dmax'],1.0e6*fileC.loc[i,'coH'],1.0e6*fileKu.loc[i,'coH'],1.0e6*fileKa.loc[i,'coH'],1.0e6*fileW.loc[i,'coH'],fileKa.loc[i,'crosspol']/fileKa.loc[i,'coH'],1.0e6*fileKa.loc[i,'crosspol'],np.nan
+    data.loc[i] = fileC.loc[i,'Dmax'],np.nan,1.0e6*fileKu.loc[i,'coH'],1.0e6*fileKa.loc[i,'coH'],1.0e6*fileW.loc[i,'coH'],fileKa.loc[i,'crosspol']/fileKa.loc[i,'coH'],1.0e6*fileKa.loc[i,'crosspol'],np.nan
 
 data = data.astype(float)
 data.sort(columns='Dmax',inplace=True)
