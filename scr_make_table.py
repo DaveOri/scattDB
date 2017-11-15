@@ -22,7 +22,7 @@ freqs = ['13.4','35.6','94']
 melt2perc = lambda x: int(int(x)*0.01)
 
 Zlab = {'13.4':'Ku','35.6':'Ka','94':'W'}
-cols = ['Dmax','X','Ku','Ka','W','ldr','xpolKa','mkg']
+cols = ['Dmax','X','Ku','Ka','W','ldr','xpolKa','mkg','CextC','CscaC','CabsC','CextX','CscaX','CabsX','CextKu','CscaKu','CabsKu','CextKa','CscaKa','CabsKa','CextW','CscaW','CabsW']
 indexes = np.arange(10000)
 for melt_frac in melt_fracs:
     data = pd.DataFrame(index=indexes, columns=cols)
@@ -72,6 +72,9 @@ for subfolder in subfolders:
                              csfile=sfld+'/CrossSec', D=D)
         data00.loc[Dstr,freqs[freqidx]] = scatt.sig_bk
         data00.loc[Dstr,'mkg'] = scatt.mass
+        data00.loc[Dstr,'Cext'+freqs[freqidx]] = scatt.sig_ext
+        data00.loc[Dstr,'Csca'+freqs[freqidx]] = scatt.sig_sca
+        data00.loc[Dstr,'Cabs'+freqs[freqidx]] = scatt.sig_abs
         if freqidx == '003':
             data00.loc[Dstr,'ldr'] = scatt.ldr
             data00.loc[Dstr,'xpolKa'] = scatt.xpol_xsect
@@ -90,6 +93,9 @@ for subfolder in subfolders:
                              csfile=sfld+'/CrossSec', D=D)
         data10.loc[Dstr,freqs[freqidx]] = scatt.sig_bk
         data10.loc[Dstr,'mkg'] = scatt.mass
+        data10.loc[Dstr,'Cext'+freqs[freqidx]] = scatt.sig_ext
+        data10.loc[Dstr,'Csca'+freqs[freqidx]] = scatt.sig_sca
+        data10.loc[Dstr,'Cabs'+freqs[freqidx]] = scatt.sig_abs
         if freqidx == '003':
             data10.loc[Dstr,'ldr'] = scatt.ldr
             data10.loc[Dstr,'xpolKa'] = scatt.xpol_xsect
@@ -98,5 +104,7 @@ data00 = data00.astype(float)
 data10 = data10.astype(float)
 data00.sort(columns='Dmax',inplace=True)
 data10.sort(columns='Dmax',inplace=True)
+data00.set_index('Dmax',inplace=True)
+data10.set_index('Dmax',inplace=True)
 data00.to_csv('tables/DO_00.csv')
 data10.to_csv('tables/DO_10.csv')
