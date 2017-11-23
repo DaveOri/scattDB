@@ -108,3 +108,44 @@ data00.set_index('Dmax',inplace=True)
 data10.set_index('Dmax',inplace=True)
 data00.to_csv('tables/DO_00.csv')
 data10.to_csv('tables/DO_10.csv')
+
+from sys import path
+path.append('/home/dori/develop/pyPamtra2/scattering/scattering/')
+path.append('/home/dori/develop/pyPamtra2/refractive/')
+from self_similar_rayleigh_gans import backscattering
+from refractive import ice
+diameters = np.linspace(0.4,40,200)
+dataSSRG = pd.DataFrame(index=diameters,columns=cols)
+dataSSRG['Dmax'] = diameters
+frequencies = {'X':9.6,'Ku':13.6,'Ka':35.6,'W':94.0}
+for freqidx in frequencies.keys():
+    frGHz = frequencies[freqidx]
+    frHz = frGHz*1.0e9
+    for diam in diameters:
+        dataSSRG.loc[diam,freqidx],dataSSRG.loc[diam,'mkg'] = backscattering(frHz,diam*0.001,ice.n(270.,frGHz))
+
+dataSSRG.to_csv('tables/DO_SSRG.csv')
+
+dataSSRG.index.name = 'Dmax'
+import matplotlib.pyplot as plt
+plt.close('all')
+plt.figure()
+ax = plt.gca()
+data00[['X','Ku','Ka','W']].plot(ax=ax,linestyle='--')
+dataSSRG[['X','Ku','Ka','W']].plot(ax=ax)
+ax.set_yscale('log')
+ax.set_ylabel('C$_{bk}$    [mm$^2$]')
+
+#brandes = lambda D: 7.9e-5*D**2.1
+#smalles = lambda D: 4.1e-5*D**2.5
+plt.close('all')
+plt.figure()
+ax = plt.gca()
+data00['mkg'].plot(ax=ax,linestyle='-.')
+dataSSRG['mkg'].plot(ax=ax)
+#ax.plot(data00.index.values,brandes(data00.index.values))
+#ax.plot(data00.index.values,smalles(data00.index.values))
+ax.set_yscale('log')
+ax.set_xscale('log')
+ax.set_ylabel('mass     [g]')
+ax.grid()

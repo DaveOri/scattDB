@@ -55,9 +55,12 @@ author = 'DO'
 melt = '00'
 
 dataDO = pd.read_csv(tablesfolder+author+'_'+melt+'.csv')
-dataDO.drop('Unnamed: 0',axis=1,inplace=True)
+#dataDO.drop('Unnamed: 0',axis=1,inplace=True)
 meltDO = pd.read_csv(tablesfolder+author+'_'+'10'+'.csv')
-meltDO.drop('Unnamed: 0',axis=1,inplace=True)
+#meltDO.drop('Unnamed: 0',axis=1,inplace=True)
+
+dataDOssrg = pd.read_csv(tablesfolder+author+'_'+'SSRG.csv')
+#dataDOssrg.drop('Unnamed: 0',axis=1,inplace=True)
 
 dataJT = pd.read_csv(tablesfolder+'jani_fractals/JT_fractals.csv')
 dataJT.drop('Unnamed: 0',axis=1,inplace=True)
@@ -252,6 +255,7 @@ def f3plot(data,title='title',color=None,ax=None):
     ax.set_title(title)
     return ax
 
+f3plot(dataDOssrg,'Dave SSRG')
 f3plot(dataDO,'Davide dry')
 #f3plot(dataDO,'Davide dry',color='Zx')
 #f3plot(dataBJ2,'BJ2 dry',color='Zx')
