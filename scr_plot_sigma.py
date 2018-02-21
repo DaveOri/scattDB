@@ -90,6 +90,7 @@ author = 'dataJL_B1.0'
 author = 'dataJL_A0.5'
 author = 'dataJL_A0.0'
 dataJL = pd.read_csv(tablesfolder+author+'.csv')
+dataJL['xpolKa'] = 0.0
 
 plt.figure()
 ax = plt.gca()
@@ -119,8 +120,8 @@ def IntPsd(D,s,psd):
     intZ = np.multiply(conc,s)
     return integrate.trapz(intZ,D)
 
-def myGammaPSD(D0,mu):
-    return psd.GammaPSD(D0=D0,Nw=1.,mu=mu,D_max=22)
+def myGammaPSD(D0,mu,D_max=100.0):
+    return psd.GammaPSD(D0=D0,Nw=1.,mu=mu,D_max=D_max)
 
 def Gauss(mu,sig):
     def F(D):
@@ -246,7 +247,7 @@ def f3plot(data,title='title',color=None,ax=None):
     ax.grid()
     ax.set_xlabel('DWR$_{Ka,W}$')
     ax.set_ylabel('DWR$_{X,Ka}$')
-    ax.set_xlim([0,20])
+    ax.set_xlim([0,15])
     ax.set_ylim([0,22])
     if set_colorbar:
         colorbar = plt.colorbar(mappable=s,ax=ax)
@@ -255,53 +256,99 @@ def f3plot(data,title='title',color=None,ax=None):
     ax.set_title(title)
     return ax
 
-f3plot(dataDOssrg,'Dave SSRG')
-f3plot(dataDO,'Davide dry')
+#f3plot(dataDOssrg,'Dave SSRG')
+#f3plot(dataDO,'Davide dry')
 #f3plot(dataDO,'Davide dry',color='Zx')
 #f3plot(dataBJ2,'BJ2 dry',color='Zx')
-
-dataJL.columns = ['Dmax','model','ELWP','mkg','Dmax.1','Rgyr','ldr','riming', 'Xa','Xs', 'X', 'Xe', 'Ua', 'Us', 'Ku', 'Ue', 'Aa', 'As', 'Ka', 'Ae', 'Wa','Ws', 'W', 'We']
-dataJL.X  = dataJL.X*1.0e6
-dataJL.Ku = dataJL.Ku*1.0e6
-dataJL.Ka = dataJL.Ka*1.0e6
-dataJL.W  = dataJL.W*1.0e6
+#
+#dataJL.columns = ['Dmax','model','ELWP','mkg','Dmax.1','Rgyr','ldr','riming', 'Xa','Xs', 'X', 'Xe', 'Ua', 'Us', 'Ku', 'Ue', 'Aa', 'As', 'Ka', 'Ae', 'Wa','Ws', 'W', 'We','xpolKa']
+#dataJL.X  = dataJL.X*1.0e6
+#dataJL.Ku = dataJL.Ku*1.0e6
+#dataJL.Ka = dataJL.Ka*1.0e6
+#dataJL.W  = dataJL.W*1.0e6
 #f3plot(dataJL,'Jussi rimed A0.5',color='Zx')
 #f3plot(dataJL,'Jussi rimed A0.5')
-
+#
 #f3plot(dataDO,'Davide dry',color='Zka')
 #f3plot(dataJL,'Jussi rimed A0.5',color='Zka')
-
+#
 #f3plot(dataDO,'Davide dry',color='Zw')
 #f3plot(dataJL,'Jussi rimed A0.5',color='Zw')
-
-ax = f3plot(dataDO,'Davide dry',color='ldr')
-f3plot(meltDO,'Davide 0 - 10 %',color='ldr',ax=ax)
-ax.grid()
-
-f3plot(dataJT,'JT fractals')
-f3plot(dataJT,'JT fractals',color='ldr')
-f3profile(dataJT,title='JT fractals',what='LDR')
-f3profile(dataJT,title='JT fractals')
-f3profile(dataJT,title='JT fractals',what='DWR')
-
-ax = f3plot(dataBJ2,'BJ2 dry',color='ldr')
-f3plot(dataBJ2_10,'BJ2 10%',color='ldr',ax=ax)
-f3plot(dataBJ2_20,'BJ2 20%',color='ldr',ax=ax)
-f3plot(dataBJ2_30,'BJ2 30%',color='ldr',ax=ax)
-f3plot(dataBJ2_40,'BJ2 40%',color='ldr',ax=ax)
-f3plot(dataBJ2_49,'BJ2 49%',color='ldr',ax=ax)
-f3plot(dataBJ2_70,'BJ2 0 - 70%',color='ldr',ax=ax)
-ax.grid()
-
-
+#
+#ax = f3plot(dataDO,'Davide dry',color='ldr')
+#f3plot(meltDO,'Davide 0 - 10 %',color='ldr',ax=ax)
+#ax.grid()
+#
+#f3plot(dataJT,'JT fractals')
+#f3plot(dataJT,'JT fractals',color='ldr')
+#f3profile(dataJT,title='JT fractals',what='LDR')
+#f3profile(dataJT,title='JT fractals')
+#f3profile(dataJT,title='JT fractals',what='DWR')
+#
+#ax = f3plot(dataBJ2,'BJ2 dry',color='ldr')
+#f3plot(dataBJ2_10,'BJ2 10%',color='ldr',ax=ax)
+#f3plot(dataBJ2_20,'BJ2 20%',color='ldr',ax=ax)
+#f3plot(dataBJ2_30,'BJ2 30%',color='ldr',ax=ax)
+#f3plot(dataBJ2_40,'BJ2 40%',color='ldr',ax=ax)
+#f3plot(dataBJ2_49,'BJ2 49%',color='ldr',ax=ax)
+#f3plot(dataBJ2_70,'BJ2 0 - 70%',color='ldr',ax=ax)
+#ax.grid()
+#
+#
 #f3profile(dataJL,title='Jussi unrimed')
 #f3profile(dataJL,title='Jussi unrimed 0.01 kg/m$^2$',what=0.01)
 #f3profile(dataJL,title='Jussi unrimed',what='DWR')
-
+#
 #f3profile(dataDO,title='Davide dry')
 #f3profile(dataDO,title='Davide dry 0.01 kg/m$^2$',what=0.01)
 #f3profile(dataDO,title='Davide dry',what='DWR')
-f3profile(dataDO,title='Davide dry',what='LDR')
+#f3profile(dataDO,title='Davide dry',what='LDR')
+#f3profile(dataDOssrg,title='Dave SSRG 0.01 kg/m$^2$',what=0.01)
+#f3profile(dataDOssrg,title='Dave SSRG',what='DWR')
+#
 #f3profile(dataRH,title='RH spherical')
 #f3profile(dataRH,title='RH spherical',what='DWR')
 #f3plot(dataRH,'RH spherical')
+
+D0s = [10.,15.,20.]
+marks=['--','-','.']
+mus = [0.0,4.0]
+Dmax = np.linspace(10,50,100)
+data = 1.0*dataDOssrg
+f,((ax1,ax2),(ax3,ax4)) = plt.subplots(2,2,sharex=True)
+
+for D0,m in zip(D0s,marks):
+    for mu in mus:
+        Zx, Za, Zw, XKa, KaW, LDR, IWC, MRR = ([] for i in range(8))
+        for Dx in Dmax:
+            conc  = myGammaPSD(D0,mu,D_max=Dx)
+            iwc = IntPsd(data.Dmax,data.mkg,conc)
+            IWC.append(iwc)
+            zx = 10.*np.log10(coeffx*IntPsd(data.Dmax,data.X,conc)/iwc)
+            zu = 10.*np.log10(coeffu*IntPsd(data.Dmax,data.Ku,conc)/iwc)
+            
+            if np.isnan(zx):
+                zx = zu
+            Zx.append(zx)
+            zalin = IntPsd(data.Dmax,data.Ka,conc)
+            ldrka = IntPsd(data.Dmax,data.xpolKa,conc)/zalin
+            Za.append(10.*np.log10(coeffa*zalin/iwc))
+            Zw.append(10.*np.log10(coeffw*IntPsd(data.Dmax,data.W,conc)/iwc))
+            LDR.append(10.*np.log10(ldrka))
+        XKa = np.array(Zx)-np.array(Za)
+        KaW = np.array(Za)-np.array(Zw)
+        ax1.plot(Dmax,Zx,m,label='D$_0$='+str(D0)+' $\mu$='+str(mu))
+        ax2.plot(Dmax,Za,m,label='D$_0$='+str(D0)+' $\mu$='+str(mu))
+        ax3.plot(Dmax,Zw,m,label='D$_0$='+str(D0)+' $\mu$='+str(mu))
+        ax4.plot(Dmax,KaW,m,label='D$_0$='+str(D0)+' $\mu$='+str(mu))
+ax1.legend()
+ax1.grid()
+ax1.set_ylabel('Zx/iwc')
+ax2.grid()
+ax2.set_ylabel('Za/iwc')
+ax3.grid()
+ax3.set_ylabel('Zw/iwc')
+ax3.set_xlabel('Truncation size')
+ax4.grid()
+ax4.set_ylabel('DWR Ka-W')
+ax4.set_xlabel('Truncation size')
