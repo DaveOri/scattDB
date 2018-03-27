@@ -92,10 +92,11 @@ class shape(object):
         self.mass = 1e-9*0.917*self.Ndipoles*self.d**3 # if I got microns, this should return milligrams
         return self.mass
         
-    def draw(self):
+    def draw(self,ax=None):
         """ Handy function to draw particle shape """
-        fig = plt.figure()
-        ax = fig.add_subplot(111, projection='3d')
+        if ax is None:
+            fig = plt.figure()
+            ax = fig.add_subplot(111, projection='3d')
         for i in range(len(self.substances)):
             currshape=self.shape[(self.shape['CX']==self.substances['CX'].iloc[i])&
                                  (self.shape['CY']==self.substances['CY'].iloc[i])&
@@ -103,7 +104,7 @@ class shape(object):
             xs = currshape.X.values
             ys = currshape.Y.values
             zs = currshape.Z.values
-            ax.scatter(xs, ys, zs)#, s=20, c=None, depthshade=True)
+            ax.scatter(xs, ys, zs, s=1)#, s=20, c=None, depthshade=True)
         
 class shapeDDA(shape):
     """ This is a specific DDA shapefile
@@ -129,8 +130,22 @@ class shapeDDA(shape):
             self.hull = None
             self.dmax = None
             self.dsphere = None
-            
 
-    
-        
+shp400=shapeDDA('/data/optimice/scattering_databases/DavideOri_2014/10/400/shape.adda')
+#shp400.draw()
+
+shp1200=shapeDDA('/data/optimice/scattering_databases/DavideOri_2014/10/1200/shape.adda')
+#shp1200.draw()
+
+shp1500=shapeDDA('/data/optimice/scattering_databases/DavideOri_2014/10/1500/shape.adda')
+#shp1200.draw()
+
+shp1600=shapeDDA('/data/optimice/scattering_databases/DavideOri_2014/10/1600/shape.adda')
+#shp1200.draw()
+
+shp2400=shapeDDA('/data/optimice/scattering_databases/DavideOri_2014/10/2400/shape.adda')
+#shp2400.draw()
+
+shp5100=shapeDDA('/data/optimice/scattering_databases/DavideOri_2014/10/5100/shape.adda')
+#shp5100.draw()
     
