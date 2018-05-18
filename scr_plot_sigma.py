@@ -50,14 +50,26 @@ coeffa = lama**4./(0.95*np.pi**5.)
 coeffw = lamw**4./(0.75*np.pi**5.)
 
 tablesfolder = 'tables/'
-authors = ['DO','BJ','JL']
+authors = ['DO','BJ','JL','meltedDO']
+
+
+author = 'meltedDO'
+meltedDO10 = pd.read_csv(tablesfolder+author+'10'+'.csv')
+meltedDO20 = pd.read_csv(tablesfolder+author+'20'+'.csv')
+meltedDO30 = pd.read_csv(tablesfolder+author+'30'+'.csv')
+meltedDO40 = pd.read_csv(tablesfolder+author+'40'+'.csv')
+meltedDO50 = pd.read_csv(tablesfolder+author+'50'+'.csv')
+meltedDO60 = pd.read_csv(tablesfolder+author+'60'+'.csv')
+meltedDO70 = pd.read_csv(tablesfolder+author+'70'+'.csv')
+
+
 author = 'DO'
 melt = '00'
-
 dataDO = pd.read_csv(tablesfolder+author+'_'+melt+'.csv')
 #dataDO.drop('Unnamed: 0',axis=1,inplace=True)
 meltDO = pd.read_csv(tablesfolder+author+'_'+'10'+'.csv')
 #meltDO.drop('Unnamed: 0',axis=1,inplace=True)
+
 
 dataDOssrg = pd.read_csv(tablesfolder+author+'_'+'SSRG.csv')
 #dataDOssrg.drop('Unnamed: 0',axis=1,inplace=True)
@@ -131,7 +143,7 @@ def Gauss(mu,sig):
 
 D0s = np.linspace(0.1,20.,30)
 mus = [-1.,0.,1.,2.,3.]
-#mus = [0.1,0.3,0.5,0.8,1]
+mus = [0.0]
 marks =[',','+','h','v','.']
 colors=['C0','C1','C2','C3','C4']
 def f3profile(data,title='title',what=1.0,color=None,ax=None):
@@ -178,7 +190,7 @@ def f3profile(data,title='title',what=1.0,color=None,ax=None):
             ax.set_xlabel('DWR     [dBZ]')
         elif what=='LDR':
             ax.plot(LDR,D0s,c=color,linestyle='-.',label='$\mu$='+str(mu))
-            ax.set_xlim([-40,-15])
+            #ax.set_xlim([-50,-15])
             ax.set_xlabel('LDR     [dB]')
         ax.invert_yaxis()
         ax.set_ylabel('D$_0$')
@@ -188,11 +200,11 @@ def f3profile(data,title='title',what=1.0,color=None,ax=None):
     return ax
 
 
-def f3plot(data,title='title',color=None,ax=None):
+def f3plot(data,title='title',color=None,ax=None,fig=None):
     set_colorbar = False
     if ax is None:
         set_colorbar = True
-        plt.figure()
+        fig = plt.figure()
         ax = plt.gca()
     for mu,m in zip(mus,marks):
         Zx, Za, Zw, XKa, KaW, LDR, IWC = ([] for i in range(7))
@@ -214,7 +226,7 @@ def f3plot(data,title='title',color=None,ax=None):
             LDR.append(10.*np.log10(ldrka))
         XKa = np.array(Zx)-np.array(Za)
         KaW = np.array(Za)-np.array(Zw)
-
+        print(max(LDR))
         if color is None:
             colorv = D0s
             vmin=0
@@ -247,14 +259,14 @@ def f3plot(data,title='title',color=None,ax=None):
     ax.grid()
     ax.set_xlabel('DWR$_{Ka,W}$')
     ax.set_ylabel('DWR$_{X,Ka}$')
-    ax.set_xlim([0,15])
-    ax.set_ylim([0,22])
+    ax.set_xlim([0,20])
+    ax.set_ylim([0,20])
     if set_colorbar:
         colorbar = plt.colorbar(mappable=s,ax=ax)
         colorbar.set_label(cbarlabel)
         ax.legend()
     ax.set_title(title)
-    return ax
+    return fig, ax
 
 #f3plot(dataDOssrg,'Dave SSRG')
 #f3plot(dataDO,'Davide dry')
@@ -275,7 +287,20 @@ def f3plot(data,title='title',color=None,ax=None):
 #f3plot(dataDO,'Davide dry',color='Zw')
 #f3plot(dataJL,'Jussi rimed A0.5',color='Zw')
 #
-#ax = f3plot(dataDO,'Davide dry',color='ldr')
+fig, ax = f3plot(dataDO,color='ldr')
+f3plot(meltedDO30,color='ldr',ax=ax,fig=fig)
+f3plot(meltedDO50,color='ldr',ax=ax,fig=fig)
+f3plot(meltedDO70,color='ldr',title='DO melt = 0 30 50 70',ax=ax,fig=fig)
+plt.grid()
+fig.savefig('3f_melted_Davide.png',dpi=300)
+
+fig, ax = f3plot(dataBJ2,color='ldr')
+f3plot(dataBJ2_30,color='ldr',ax=ax,fig=fig)
+f3plot(dataBJ2_49,color='ldr',ax=ax,fig=fig)
+f3plot(dataBJ2_70,color='ldr',title='Ben2 melt = 0 30 50 70',ax=ax,fig=fig)
+plt.grid()
+fig.savefig('3f_melted_Ben.png',dpi=300)
+
 #f3plot(meltDO,'Davide 0 - 10 %',color='ldr',ax=ax)
 #ax.grid()
 #
@@ -299,7 +324,21 @@ def f3plot(data,title='title',color=None,ax=None):
 #f3profile(dataJL,title='Jussi unrimed 0.01 kg/m$^2$',what=0.01)
 #f3profile(dataJL,title='Jussi unrimed',what='DWR')
 #
-#f3profile(dataDO,title='Davide dry')
+ax = f3profile(dataBJ2,what='LDR')
+f3profile(dataBJ2_30,ax=ax,what='LDR')
+f3profile(dataBJ2_49,ax=ax,what='LDR')
+f3profile(dataBJ2_70,title='Ben J 0 30 50 70',ax=ax,what='LDR')
+ax.invert_yaxis()
+plt.grid()
+plt.savefig('ldr_profile_BJ.png',dpi=400)
+
+ax = f3profile(dataDO,what='LDR')
+f3profile(meltedDO30,ax=ax,what='LDR')
+f3profile(meltedDO50,ax=ax,what='LDR')
+f3profile(meltedDO70,title='Davide 0 30 50 70',ax=ax,what='LDR')
+ax.invert_yaxis()
+plt.grid()
+plt.savefig('ldr_profile_Davide.png',dpi=400)
 #f3profile(dataDO,title='Davide dry 0.01 kg/m$^2$',what=0.01)
 #f3profile(dataDO,title='Davide dry',what='DWR')
 #f3profile(dataDO,title='Davide dry',what='LDR')

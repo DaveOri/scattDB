@@ -54,10 +54,42 @@ for melt_frac in melt_fracs:
     data.dropna(how='all',inplace=True)
     data.to_csv('tables/BJ_agg3_'+str(melt2perc(melt_frac))+'.csv')
 
+freqs = {'9.6':'X','13.6':'Ku','35.6':'Ka','94':'W'}
+scattfolder = '/data/optimice/scattering_databases/DavideOri_2014/melted/'
+subfolders = glob(scattfolder+'*')
+subfolders = [x for x in subfolders if '11938.9' not in x]
+subfolders = [x for x in subfolders if '12973' not in x]
+subfolders = [x for x in subfolders if '13885.6' not in x]
+melt_fracs = [10,20,30,40,50,60,70]
+for melt_frac in melt_fracs:
+  data = pd.DataFrame(index=[x[len(scattfolder):] for x in subfolders],columns=cols)
+  for subfolder in subfolders:
+    Dstr = subfolder[len(scattfolder):]
+    D = float(Dstr)*1e-3
+    print(subfolder, D)
+    data.loc[Dstr,'Dmax'] = D
+    for freqidx in freqs.keys():
+      datafolder = subfolder + '/1/' + freqidx +'/'+ str(melt_frac)+'/'
+      scatt = scattering.ScattADDA(logfile=datafolder+'log',
+                                   muellerfile=datafolder+'mueller',
+                                   csfile=datafolder+'CrossSec', D=D)
+      data.loc[Dstr,freqs[freqidx]] = scatt.sig_bk*1e12
+      data.loc[Dstr,'mkg'] = scatt.mass*1e18
+      data.loc[Dstr,'Cext'+freqs[freqidx]] = scatt.sig_ext*1e12
+      data.loc[Dstr,'Csca'+freqs[freqidx]] = scatt.sig_sca*1e12
+      data.loc[Dstr,'Cabs'+freqs[freqidx]] = scatt.sig_abs*1e12
+      if freqidx == '35.6':
+        data.loc[Dstr,'ldr'] = scatt.ldr
+        data.loc[Dstr,'xpolKa'] = scatt.xpol_xsect*1e12
+  data = data.astype(float)
+  data.sort(columns='Dmax',inplace=True)
+  data.set_index('Dmax',inplace=True)
+  data.to_csv('tables/meltedDO'+str(melt_frac)+'.csv')
+
 
 freqs = {'000':'C','001':'X','002':'Ku','003':'Ka','004':'W','005':'89','006':'157'}
 freqs = {'001':'X','002':'Ku','003':'Ka','004':'W'}
-scattfolder = '/work/DBs/0/'
+scattfolder = '/data/optimice/scattering_databases/DavideOri_2014/0/'
 
 subfolders = glob(scattfolder+'*')
 data00 = pd.DataFrame(index=[x[len(scattfolder):] for x in subfolders],columns=cols)
@@ -79,7 +111,7 @@ for subfolder in subfolders:
             data00.loc[Dstr,'ldr'] = scatt.ldr
             data00.loc[Dstr,'xpolKa'] = scatt.xpol_xsect
 
-scattfolder = '/work/DBs/10/'
+scattfolder = '/data/optimice/scattering_databases/DavideOri_2014/10/'
 subfolders = glob(scattfolder+'*')
 data10 = pd.DataFrame(index=[x[len(scattfolder):] for x in subfolders],columns=cols)
 for subfolder in subfolders:
@@ -110,8 +142,8 @@ data00.to_csv('tables/DO_00.csv')
 data10.to_csv('tables/DO_10.csv')
 
 from sys import path
-path.append('/home/dori/develop/pyPamtra2/scattering/scattering/')
-path.append('/home/dori/develop/pyPamtra2/refractive/')
+path.append('/home/dori/develop/pyPamtra2/singleScattering/singleScattering/')
+path.append('/home/dori/develop/pyPamtra2/refractiveIndex/refractiveIndex/')
 from self_similar_rayleigh_gans import backscattering
 from refractive import ice
 diameters = np.linspace(0.4,40,200)
@@ -122,7 +154,7 @@ for freqidx in frequencies.keys():
     frGHz = frequencies[freqidx]
     frHz = frGHz*1.0e9
     for diam in diameters:
-        dataSSRG.loc[diam,freqidx],dataSSRG.loc[diam,'mkg'] = backscattering(frHz,diam*0.001,ice.n(270.,frGHz))
+        dataSSRG.loc[diam,freqidx],dataSSRG.loc[diam,'mkg'] = backscattering(frHz,diam*0.001,ice.n(270.,frHz))
 
 dataSSRG.to_csv('tables/DO_SSRG.csv')
 
