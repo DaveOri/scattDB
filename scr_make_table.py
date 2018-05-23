@@ -11,8 +11,8 @@ import pandas as pd
 import numpy as np
 from scattDB import scattering
 
-shapefolder = '/work/DBs/melted_aggregate_shape_files/'
-scattfolder = '/work/DBs/melted_aggregate_scaled_reff_Ku_Ka_W_89_165_183/'
+shapefolder = '/data/optimice/scattering_databases/BenJohnson_2015/melted_aggregate_shape_files/'
+scattfolder = '/data/optimice/scattering_databases/BenJohnson_2015/melted_aggregate_scaled_reff_Ku_Ka_W_89_165_183/'
 
 #melt_fracs = ['000001','001010','002004','004988','007029']
 #melt_fracs = ['000001','001017','001315']
@@ -27,7 +27,7 @@ indexes = np.arange(10000)
 for melt_frac in melt_fracs:
     data = pd.DataFrame(index=indexes, columns=cols)
     for freq in freqs:
-        scatt_folders = sorted(glob(scattfolder+'*aggregate3*'+'_f'+melt_frac+'_*'+freq))
+        scatt_folders = sorted(glob(scattfolder+'*aggregate2*'+'_f'+melt_frac+'_*'+freq))
         dist = scattering.ScattDist()
         freqidx = Zlab[freq]
         i=0
@@ -40,7 +40,7 @@ for melt_frac in melt_fracs:
             avgfiles = sorted(glob(fld+'/*.avg'))
             for avg in avgfiles:
                 scatt = scattering.ScattDDSCAT(avg) 
-                scatt.D = shp.find_dmax(aeff=scatt.aeff)
+                scatt.D = shp.find_dmax(aeff=scatt.aeff)+0.2
                 scatt.mass = shp.find_mass(aeff=scatt.aeff)
                 scatt.melt = shp.get_melted_fraction()
                 data.iloc[i][Zlab[freq]] = scatt.sig_bk
@@ -52,14 +52,12 @@ for melt_frac in melt_fracs:
                 i = i + 1
     data.sort('Dmax',inplace=True)
     data.dropna(how='all',inplace=True)
-    data.to_csv('tables/BJ_agg3_'+str(melt2perc(melt_frac))+'.csv')
-
+    data.to_csv('tables/BJ_agg2_'+str(melt2perc(melt_frac))+'.csv')
+#%%
 freqs = {'9.6':'X','13.6':'Ku','35.6':'Ka','94':'W'}
 scattfolder = '/data/optimice/scattering_databases/DavideOri_2014/melted/'
 subfolders = glob(scattfolder+'*')
-subfolders = [x for x in subfolders if '11938.9' not in x]
 subfolders = [x for x in subfolders if '12973' not in x]
-subfolders = [x for x in subfolders if '13885.6' not in x]
 melt_fracs = [10,20,30,40,50,60,70]
 for melt_frac in melt_fracs:
   data = pd.DataFrame(index=[x[len(scattfolder):] for x in subfolders],columns=cols)
@@ -95,6 +93,9 @@ subfolders = glob(scattfolder+'*')
 data00 = pd.DataFrame(index=[x[len(scattfolder):] for x in subfolders],columns=cols)
 for subfolder in subfolders:
     Dstr = subfolder[len(scattfolder):]
+    trans=1.0
+    if (Dstr=='13900'):
+      trans = 1e6
     D = int(Dstr)*1e-3
     print(subfolder, D)
     data00.loc[Dstr,'Dmax'] = D
@@ -102,14 +103,14 @@ for subfolder in subfolders:
         sfld = glob(subfolder+'/run'+freqidx+'*')[0]
         scatt = scattering.ScattADDA(logfile=sfld+'/log',muellerfile=sfld+'/mueller',
                              csfile=sfld+'/CrossSec', D=D)
-        data00.loc[Dstr,freqs[freqidx]] = scatt.sig_bk
-        data00.loc[Dstr,'mkg'] = scatt.mass
-        data00.loc[Dstr,'Cext'+freqs[freqidx]] = scatt.sig_ext
-        data00.loc[Dstr,'Csca'+freqs[freqidx]] = scatt.sig_sca
-        data00.loc[Dstr,'Cabs'+freqs[freqidx]] = scatt.sig_abs
+        data00.loc[Dstr,freqs[freqidx]] = scatt.sig_bk*trans**2
+        data00.loc[Dstr,'mkg'] = scatt.mass*trans**3
+        data00.loc[Dstr,'Cext'+freqs[freqidx]] = scatt.sig_ext*trans**2
+        data00.loc[Dstr,'Csca'+freqs[freqidx]] = scatt.sig_sca*trans**2
+        data00.loc[Dstr,'Cabs'+freqs[freqidx]] = scatt.sig_abs*trans**2
         if freqidx == '003':
             data00.loc[Dstr,'ldr'] = scatt.ldr
-            data00.loc[Dstr,'xpolKa'] = scatt.xpol_xsect
+            data00.loc[Dstr,'xpolKa'] = scatt.xpol_xsect*trans**2
 
 scattfolder = '/data/optimice/scattering_databases/DavideOri_2014/10/'
 subfolders = glob(scattfolder+'*')
@@ -181,3 +182,17 @@ ax.set_yscale('log')
 ax.set_xscale('log')
 ax.set_ylabel('mass     [g]')
 ax.grid()
+
+plt.close('all')
+plt.figure()
+ax = plt.gca()
+ax.plot(meltedDO70['Dmax'],meltedDO70['xpolKa'])
+ax.plot(data['Dmax'],data['xpolKa'])
+ax.set_yscale('log')
+
+plt.close('all')
+plt.figure()
+ax = plt.gca()
+ax.plot(meltedDO70['Dmax'],meltedDO70['Ka'])
+ax.plot(data['Dmax'],data['Ka'])
+ax.set_yscale('log')

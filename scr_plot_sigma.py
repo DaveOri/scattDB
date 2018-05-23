@@ -391,3 +391,117 @@ ax3.set_xlabel('Truncation size')
 ax4.grid()
 ax4.set_ylabel('DWR Ka-W')
 ax4.set_xlabel('Truncation size')
+
+
+#%%
+D0s = np.linspace(0.1,20.,30)
+mus = [-1.,0.,1.,2.,3.]
+mus = [0.0]
+marks =[',','+','h','v','.']
+colors=['C0','C1','C2','C3','C4']
+colorv = D0s
+vmin=0
+vmax=20
+cbarlabel = '$D_0$'
+
+mu=0.0
+def integratePSD(data):
+  Zx, Za, Zw, XKa, KaW, LDR, IWC = ([] for i in range(7))
+  for D0 in D0s:
+    conc  = myGammaPSD(D0,mu)
+    iwc = IntPsd(data.Dmax,data.mkg,conc)
+    IWC.append(iwc)
+    zx = 10.*np.log10(coeffx*IntPsd(data.Dmax,data.X,conc)/iwc)
+    zu = 10.*np.log10(coeffu*IntPsd(data.Dmax,data.Ku,conc)/iwc)
+    
+    if np.isnan(zx):
+      zx = zu
+    Zx.append(zx)
+    zalin = IntPsd(data.Dmax,data.Ka,conc)
+    ldrka = IntPsd(data.Dmax,data.xpolKa,conc)/zalin
+    Za.append(10.*np.log10(coeffa*zalin/iwc))
+    Zw.append(10.*np.log10(coeffw*IntPsd(data.Dmax,data.W,conc)/iwc))
+    LDR.append(10.*np.log10(ldrka))
+  XKa = np.array(Zx)-np.array(Za)
+  KaW = np.array(Za)-np.array(Zw)
+  return Zx, Za, Zw, XKa, KaW, LDR, IWC
+
+fig,ax = plt.subplots(1,2,sharey=True,figsize=(10,4))
+Zx, Za, Zw, XKa, KaW, LDR, IWC = integratePSD(dataDO)
+print(max(LDR))
+s = ax[0].scatter(XKa,LDR,c=D0s,marker=',',label='dry',vmin=vmin,vmax=vmax,cmap='jet')
+s = ax[1].scatter(KaW,LDR,c=D0s,marker=',',label='dry',vmin=vmin,vmax=vmax,cmap='jet')
+Zx, Za, Zw, XKa, KaW, LDR, IWC = integratePSD(meltedDO10)
+print(max(LDR))
+s = ax[0].scatter(XKa,LDR,c=D0s,marker='.',label='10%',vmin=vmin,vmax=vmax,cmap='jet')
+s = ax[1].scatter(KaW,LDR,c=D0s,marker='.',label='10%',vmin=vmin,vmax=vmax,cmap='jet')
+Zx, Za, Zw, XKa, KaW, LDR, IWC = integratePSD(meltedDO40)
+print(max(LDR))
+s = ax[0].scatter(XKa,LDR,c=D0s,marker='+',label='40%',vmin=vmin,vmax=vmax,cmap='jet')
+s = ax[1].scatter(KaW,LDR,c=D0s,marker='+',label='40%',vmin=vmin,vmax=vmax,cmap='jet')
+Zx, Za, Zw, XKa, KaW, LDR, IWC = integratePSD(meltedDO70)
+print(max(LDR))
+s = ax[0].scatter(XKa,LDR,c=D0s,marker='h',label='70%',vmin=vmin,vmax=vmax,cmap='jet')
+s = ax[1].scatter(KaW,LDR,c=D0s,marker='h',label='70%',vmin=vmin,vmax=vmax,cmap='jet')
+
+ax[0].grid()
+ax[1].grid()
+ax[0].legend()
+colorbar = plt.colorbar(mappable=s,ax=ax[0])
+colorbar.set_label(cbarlabel)
+colorbar = plt.colorbar(mappable=s,ax=ax[1])
+colorbar.set_label(cbarlabel)
+
+ax[1].set_xlabel('DWR$_{Ka,W}$   [dBZ]')
+ax[0].set_xlabel('DWR$_{X,Ka}$   [dBZ]')
+ax[0].set_ylabel('LDR    [dB]')
+ax[0].set_xlim([0,25])
+ax[1].set_xlim([0,20])
+fig.suptitle('Dias Neto Knot')
+fig.savefig('LDR_DWR.png')
+
+
+
+
+fig,ax = plt.subplots(1,2,sharey=True,figsize=(10,4))
+ax[0].plot(data00.index    ,data00['xpolKa']    ,label='DO_00')
+ax[0].plot(meltedDO30.index,meltedDO30['xpolKa'],label='DO_30')
+ax[0].plot(meltedDO70.index,meltedDO70['xpolKa'],label='DO_70')
+ax[0].plot(dataBJ2.index   ,dataBJ2['xpolKa']   ,label='BJ_00')
+ax[0].plot(dataBJ2_30.index,dataBJ2_30['xpolKa'],label='BJ_30')
+ax[0].plot(dataBJ2_70.index,dataBJ2_70['xpolKa'],label='BJ_70')
+ax[0].legend()
+ax[0].set_yscale('log')
+ax[1].plot(data00.index    ,data00['Ka']    ,label='DO_00')
+ax[1].plot(meltedDO30.index,meltedDO30['Ka'],label='DO_30')
+ax[1].plot(meltedDO70.index,meltedDO70['Ka'],label='DO_70')
+ax[1].plot(dataBJ2.index   ,dataBJ2['Ka']   ,label='BJ_00')
+ax[1].plot(dataBJ2_30.index,dataBJ2_30['Ka'],label='BJ_30')
+ax[1].plot(dataBJ2_70.index,dataBJ2_70['Ka'],label='BJ_70')
+ax[1].legend()
+ax[1].set_yscale('log')
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
