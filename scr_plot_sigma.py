@@ -11,7 +11,10 @@ import pandas as pd
 import numpy as np
 import matplotlib.pyplot as plt
 #from scattDB import scattering
-from scattDB import psd
+try:
+    from scattDB import psd
+except:
+    import scattDB.psd as psd
 from scipy import integrate
 
 Br07 = lambda x:0.08900e-3*x**2.1
@@ -104,18 +107,6 @@ author = 'dataJL_A0.0'
 dataJL = pd.read_csv(tablesfolder+author+'.csv')
 dataJL['xpolKa'] = 0.0
 
-plt.figure()
-ax = plt.gca()
-#ax.scatter(dataBJ2.Dmax,dataBJ2.mkg,label='BJ2')
-#ax.scatter(dataBJ3.Dmax,dataBJ3.mkg,label='BJ3')
-ax.scatter(dataJL.Dmax, dataJL.mkg, label='JL')
-ax.scatter(dataDO.Dmax, dataDO.mkg, label='DO')
-ax.plot(dataDO.Dmax,Br07(dataDO.Dmax),label='brandes')
-ax.plot(dataDO.Dmax,BF95(dataDO.Dmax),label='BF95')
-ax.legend()
-ax.grid()
-ax.set_yscale('log')
-ax.set_xscale('log')
 
 dataRH=pd.DataFrame(index=dataRHa.index,columns=dataDO.columns)
 dataRH.Dmax = dataRH.index
@@ -125,6 +116,23 @@ dataRH.Ku = dataRHu.cbk
 dataRH['K']  = dataRHk.cbk
 dataRH.Ka = dataRHa.cbk
 dataRH.W  = dataRHw.cbk
+
+plt.figure()
+ax = plt.gca()
+#ax.scatter(dataBJ2.Dmax,dataBJ2.mkg,label='BJ2')
+#ax.scatter(dataBJ3.Dmax,dataBJ3.mkg,label='BJ3')
+ax.scatter(dataJT.Dmax, dataJT.mkg, label='JT')
+ax.scatter(dataRH.Dmax, dataRH.mkg, label='RH')
+ax.scatter(dataJL.Dmax, dataJL.mkg, label='JL')
+ax.scatter(dataDO.Dmax, dataDO.mkg, label='DO')
+ax.plot(dataDO.Dmax,Br07(dataDO.Dmax),label='brandes')
+ax.plot(dataDO.Dmax,BF95(dataDO.Dmax),label='BF95')
+ax.legend()
+ax.grid()
+ax.set_yscale('log')
+ax.set_xscale('log')
+
+
 #%%
 
 def IntPsd(D,s,psd):
@@ -461,9 +469,9 @@ fig.suptitle('Dias Neto Knot')
 fig.savefig('LDR_DWR.png')
 
 
+#%%
 
-
-fig,ax = plt.subplots(1,2,sharey=True,figsize=(10,4))
+fig,ax = plt.subplots(1,3,sharey=True,figsize=(14,4))
 ax[0].plot(dataDO['Dmax']    ,dataDO['xpolKa']    ,label='DO_00',linestyle='-.')
 ax[0].plot(meltedDO30['Dmax'],meltedDO30['xpolKa'],label='DO_30',linestyle='-.')
 ax[0].plot(meltedDO70['Dmax'],meltedDO70['xpolKa'],label='DO_70',linestyle='-.')
@@ -474,38 +482,121 @@ ax[0].plot(dataBJ2_70['Dmax'],dataBJ2_70['xpolKa'],label='BJ_70')
 ax[0].set_title('Xpol Xsec Ka   [mm$^2$]')
 ax[0].set_yscale('log')
 ax[0].set_xlabel('Dmax     [mm]')
-ax[1].plot(dataDO['Dmax']    ,dataDO['Ka']    ,label='DO_00',linestyle='-.')
-ax[1].plot(meltedDO30['Dmax'],meltedDO30['Ka'],label='DO_30',linestyle='-.')
-ax[1].plot(meltedDO70['Dmax'],meltedDO70['Ka'],label='DO_70',linestyle='-.')
-ax[1].plot(dataBJ2['Dmax']   ,dataBJ2['Ka']   ,label='BJ_00')
-ax[1].plot(dataBJ2_30['Dmax'],dataBJ2_30['Ka'],label='BJ_30')
-ax[1].plot(dataBJ2_70['Dmax'],dataBJ2_70['Ka'],label='BJ_70')
-ax[1].set_title('Copol Xsec Ka   [mm$^2$]')
-ax[1].set_xlabel('Dmax     [mm]')
-ax[1].legend()
-ax[1].set_yscale('log')
+
+ax[1].plot(dataDO['Dmax']    ,dataDO['CscaKa']    ,label='DO_00',linestyle='-.')
+ax[1].plot(meltedDO30['Dmax'],meltedDO30['CscaKa'],label='DO_30',linestyle='-.')
+ax[1].plot(meltedDO70['Dmax'],meltedDO70['CscaKa'],label='DO_70',linestyle='-.')
+ax[1].plot(dataBJ2['Dmax']   ,dataBJ2['CscaKa']   ,label='BJ_00')
+ax[1].plot(dataBJ2_30['Dmax'],dataBJ2_30['CscaKa'],label='BJ_30')
+ax[1].plot(dataBJ2_70['Dmax'],dataBJ2_70['CscaKa'],label='BJ_70')
+
+ax[2].plot(dataDO['Dmax']    ,dataDO['Ka']    ,label='DO_00',linestyle='-.')
+ax[2].plot(meltedDO30['Dmax'],meltedDO30['Ka'],label='DO_30',linestyle='-.')
+ax[2].plot(meltedDO70['Dmax'],meltedDO70['Ka'],label='DO_70',linestyle='-.')
+ax[2].plot(dataBJ2['Dmax']   ,dataBJ2['Ka']   ,label='BJ_00')
+ax[2].plot(dataBJ2_30['Dmax'],dataBJ2_30['Ka'],label='BJ_30')
+ax[2].plot(dataBJ2_70['Dmax'],dataBJ2_70['Ka'],label='BJ_70')
+ax[2].set_title('Copol Xsec Ka   [mm$^2$]')
+ax[2].set_xlabel('Dmax     [mm]')
+ax[2].legend()
+ax[2].set_yscale('log')
 fig.savefig('DO_BJ_comp_Xpol.png')
+#%%
+reff = lambda mass: np.cbrt(3.0*mass/(4.0*np.pi*916.0))
+xeff = lambda r,l: 2.0*np.pi*r/l
+qeff = lambda C,r: C/(np.pi*r**2.0)
 
+import sys
+sys.path.append('/work/DBs/scattnlay')
+try:
+    from scattnlay import scattnlay
+    from scattnlay import fieldnlay
+except:
+    print('not python2')
 
+fig,ax = plt.subplots(2,2,figsize=(9,9))
+aeff = reff(dataDO['mkg'])
+ax[0,0].scatter(xeff(aeff,lamx/100.0),qeff(1.0e-6*dataDO['X'],aeff),c='k',s=1)
+ax[0,0].scatter(xeff(aeff,lamu/100.0),qeff(1.0e-6*dataDO['Ku'],aeff),c='k',s=1)
+ax[0,0].scatter(xeff(aeff,lama/100.0),qeff(1.0e-6*dataDO['Ka'],aeff),c='k',s=1)
+ax[0,0].scatter(xeff(aeff,lamw/100.0),qeff(1.0e-6*dataDO['W'],aeff),c='k',s=1)
 
+aeff = reff(dataJL['mkg'])
+ax[0,0].scatter(xeff(aeff,lamx/100.0),qeff(dataJL['Xb'],aeff),c='k',s=1)
+ax[0,0].scatter(xeff(aeff,lamu/100.0),qeff(dataJL['Ub'],aeff),c='k',s=1)
+ax[0,0].scatter(xeff(aeff,lama/100.0),qeff(dataJL['Ab'],aeff),c='k',s=1)
+ax[0,0].scatter(xeff(aeff,lamw/100.0),qeff(dataJL['Wb'],aeff),c='k',s=1)
 
+aeff = reff(dataRH['mkg'])
+ax[0,0].scatter(xeff(aeff,lamx/100.0),qeff(dataRH['X'],aeff),c='k',s=1)
+ax[0,0].scatter(xeff(aeff,lamu/100.0),qeff(dataRH['Ku'],aeff),c='k',s=1)
+ax[0,0].scatter(xeff(aeff,lama/100.0),qeff(dataRH['Ka'],aeff),c='k',s=1)
+ax[0,0].scatter(xeff(aeff,lamw/100.0),qeff(dataRH['W'],aeff),c='k',s=1)
 
+aeff = reff(dataJT['mkg'])
+ax[0,0].scatter(xeff(aeff,lamx/100.0),qeff(1.0e-6*dataJT['X'],aeff),c='k',s=1)
+ax[0,0].scatter(xeff(aeff,lamu/100.0),qeff(1.0e-6*dataJT['Ku'],aeff),c='k',s=1)
+ax[0,0].scatter(xeff(aeff,lama/100.0),qeff(1.0e-6*dataJT['Ka'],aeff),c='k',s=1)
+ax[0,0].scatter(xeff(aeff,lamw/100.0),qeff(1.0e-6*dataJT['W'],aeff),c='k',s=1)
 
+ax[0,0].set_xlim([1e-2,1e1])
+ax[0,0].set_ylim([1e-10,1e-2])
+ax[0,0].set_xscale('log')
+ax[0,0].set_yscale('log')
 
+###############################################################################
 
+aeff = reff(dataDO['mkg'])
+ax[0,1].scatter(xeff(aeff,lamx/100.0),qeff(1.0e-6*dataDO['CscaX'],aeff),c='k',s=1)
+ax[0,1].scatter(xeff(aeff,lamu/100.0),qeff(1.0e-6*dataDO['CscaKu'],aeff),c='k',s=1)
+ax[0,1].scatter(xeff(aeff,lama/100.0),qeff(1.0e-6*dataDO['CscaKa'],aeff),c='k',s=1)
+ax[0,1].scatter(xeff(aeff,lamw/100.0),qeff(1.0e-6*dataDO['CscaW'],aeff),c='k',s=1)
 
+aeff = reff(dataJL['mkg'])
+ax[0,1].scatter(xeff(aeff,lamx/100.0),qeff(dataJL['Xs'],aeff),c='k',s=1)
+ax[0,1].scatter(xeff(aeff,lamu/100.0),qeff(dataJL['Us'],aeff),c='k',s=1)
+ax[0,1].scatter(xeff(aeff,lama/100.0),qeff(dataJL['As'],aeff),c='k',s=1)
+ax[0,1].scatter(xeff(aeff,lamw/100.0),qeff(dataJL['Ws'],aeff),c='k',s=1)
 
+ax[0,1].set_xlim([1e-2,1e1])
+ax[0,1].set_ylim([1e-10,1e-1])
+ax[0,1].set_xscale('log')
+ax[0,1].set_yscale('log')
 
+###############################################################################
 
+aeff = reff(dataDO['mkg'])
+ax[1,0].scatter(xeff(aeff,lamx/100.0),qeff(1.0e-6*dataDO['CabsX'],aeff),c='k',s=1)
+ax[1,0].scatter(xeff(aeff,lamu/100.0),qeff(1.0e-6*dataDO['CabsKu'],aeff),c='k',s=1)
+ax[1,0].scatter(xeff(aeff,lama/100.0),qeff(1.0e-6*dataDO['CabsKa'],aeff),c='k',s=1)
+ax[1,0].scatter(xeff(aeff,lamw/100.0),qeff(1.0e-6*dataDO['CabsW'],aeff),c='k',s=1)
 
+aeff = reff(dataJL['mkg'])
+ax[1,0].scatter(xeff(aeff,lamx/100.0),qeff(dataJL['Xa'],aeff),c='k',s=1)
+ax[1,0].scatter(xeff(aeff,lamu/100.0),qeff(dataJL['Ua'],aeff),c='k',s=1)
+ax[1,0].scatter(xeff(aeff,lama/100.0),qeff(dataJL['Aa'],aeff),c='k',s=1)
+ax[1,0].scatter(xeff(aeff,lamw/100.0),qeff(dataJL['Wa'],aeff),c='k',s=1)
 
+ax[1,0].set_xlim([1e-2,1e1])
+ax[1,0].set_ylim([1e-8,1e-3])
+ax[1,0].set_xscale('log')
+ax[1,0].set_yscale('log')
 
+###############################################################################
 
+aeff = reff(dataDO['mkg'])
+ax[1,1].scatter(xeff(aeff,lamx/100.0),qeff(1.0e-6*dataDO['CextX'],aeff),c='k',s=1)
+ax[1,1].scatter(xeff(aeff,lamu/100.0),qeff(1.0e-6*dataDO['CextKu'],aeff),c='k',s=1)
+ax[1,1].scatter(xeff(aeff,lama/100.0),qeff(1.0e-6*dataDO['CextKa'],aeff),c='k',s=1)
+ax[1,1].scatter(xeff(aeff,lamw/100.0),qeff(1.0e-6*dataDO['CextW'],aeff),c='k',s=1)
 
+aeff = reff(dataJL['mkg'])
+ax[1,1].scatter(xeff(aeff,lamx/100.0),qeff(dataJL['Xe'],aeff),c='k',s=1)
+ax[1,1].scatter(xeff(aeff,lamu/100.0),qeff(dataJL['Ue'],aeff),c='k',s=1)
+ax[1,1].scatter(xeff(aeff,lama/100.0),qeff(dataJL['Ae'],aeff),c='k',s=1)
+ax[1,1].scatter(xeff(aeff,lamw/100.0),qeff(dataJL['We'],aeff),c='k',s=1)
 
-
-
-
-
-
-
+ax[1,1].set_xlim([1e-2,1e1])
+ax[1,1].set_ylim([1e-10,1e-2])
+ax[1,1].set_xscale('log')
+ax[1,1].set_yscale('log')

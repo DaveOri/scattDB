@@ -40,15 +40,19 @@ for melt_frac in melt_fracs:
             avgfiles = sorted(glob(fld+'/*.avg'))
             for avg in avgfiles:
                 scatt = scattering.ScattDDSCAT(avg) 
+                print(4.0*np.pi*scatt.sig_bk/scatt.radar_xsect)
                 scatt.D = shp.find_dmax(aeff=scatt.aeff)+0.2
                 scatt.mass = shp.find_mass(aeff=scatt.aeff)
                 scatt.melt = shp.get_melted_fraction()
                 data.iloc[i][Zlab[freq]] = scatt.sig_bk
                 data.iloc[i]['Dmax'] = scatt.D
                 data.iloc[i]['mkg'] = scatt.mass
+                data.iloc[i]['Cext'+Zlab[freq]] = scatt.sig_ext
+                data.iloc[i]['Csca'+Zlab[freq]] = scatt.sig_sca
+                data.iloc[i]['Cabs'+Zlab[freq]] = scatt.sig_abs
                 if freq == '35.6':
                     data.iloc[i]['ldr'] = scatt.ldr
-                    data.iloc[i]['xpolKa'] = scatt.xpol_xsect
+                    data.iloc[i]['xpolKa'] = scatt.xpol_xsect/(4.0*np.pi)
                 i = i + 1
     data.sort('Dmax',inplace=True)
     data.dropna(how='all',inplace=True)
@@ -57,7 +61,7 @@ for melt_frac in melt_fracs:
 freqs = {'9.6':'X','13.6':'Ku','35.6':'Ka','94':'W'}
 scattfolder = '/data/optimice/scattering_databases/DavideOri_2014/melted/'
 subfolders = glob(scattfolder+'*')
-subfolders = [x for x in subfolders if '12973' not in x]
+#subfolders = [x for x in subfolders if '12973' not in x]
 melt_fracs = [10,20,30,40,50,60,70]
 for melt_frac in melt_fracs:
   data = pd.DataFrame(index=[x[len(scattfolder):] for x in subfolders],columns=cols)
@@ -71,6 +75,7 @@ for melt_frac in melt_fracs:
       scatt = scattering.ScattADDA(logfile=datafolder+'log',
                                    muellerfile=datafolder+'mueller',
                                    csfile=datafolder+'CrossSec', D=D)
+      print(scatt.sig_bk/scatt.radar_xsect)
       data.loc[Dstr,freqs[freqidx]] = scatt.sig_bk*1e12
       data.loc[Dstr,'mkg'] = scatt.mass*1e18
       data.loc[Dstr,'Cext'+freqs[freqidx]] = scatt.sig_ext*1e12
