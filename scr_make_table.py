@@ -40,7 +40,7 @@ for melt_frac in melt_fracs:
             avgfiles = sorted(glob(fld+'/*.avg'))
             for avg in avgfiles:
                 scatt = scattering.ScattDDSCAT(avg) 
-                print(4.0*np.pi*scatt.sig_bk/scatt.radar_xsect)
+                # print(4.0*np.pi*scatt.sig_bk/scatt.radar_xsect)
                 scatt.D = shp.find_dmax(aeff=scatt.aeff)+0.2
                 scatt.mass = shp.find_mass(aeff=scatt.aeff)
                 scatt.melt = shp.get_melted_fraction()
@@ -68,14 +68,14 @@ for melt_frac in melt_fracs:
   for subfolder in subfolders:
     Dstr = subfolder[len(scattfolder):]
     D = float(Dstr)*1e-3
-    print(subfolder, D)
+    # print(subfolder, D)
     data.loc[Dstr,'Dmax'] = D
     for freqidx in freqs.keys():
       datafolder = subfolder + '/1/' + freqidx +'/'+ str(melt_frac)+'/'
       scatt = scattering.ScattADDA(logfile=datafolder+'log',
                                    muellerfile=datafolder+'mueller',
                                    csfile=datafolder+'CrossSec', D=D)
-      print(scatt.sig_bk/scatt.radar_xsect)
+      # print(scatt.sig_bk/scatt.radar_xsect)
       data.loc[Dstr,freqs[freqidx]] = scatt.sig_bk*1e12
       data.loc[Dstr,'mkg'] = scatt.mass*1e18
       data.loc[Dstr,'Cext'+freqs[freqidx]] = scatt.sig_ext*1e12
@@ -102,7 +102,7 @@ for subfolder in subfolders:
     if (Dstr=='13900'):
       trans = 1e6
     D = int(Dstr)*1e-3
-    print(subfolder, D)
+    # print(subfolder, D)
     data00.loc[Dstr,'Dmax'] = D
     for freqidx in freqs.keys():
         sfld = glob(subfolder+'/run'+freqidx+'*')[0]
@@ -124,7 +124,7 @@ for subfolder in subfolders:
     Dstr = subfolder[len(scattfolder):]
     D = int(Dstr)*1e-3
     data10.loc[Dstr,'Dmax'] = D
-    print(subfolder, D)
+    # print(subfolder, D)
     for freqidx in freqs.keys():
         sfld = glob(subfolder+'/run'+freqidx+'*')[0]
         scatt = scattering.ScattADDA(logfile=sfld+'/log',muellerfile=sfld+'/mueller',
@@ -148,8 +148,8 @@ data00.to_csv('tables/DO_00.csv')
 data10.to_csv('tables/DO_10.csv')
 
 from sys import path
-path.append('/home/dori/develop/pyPamtra2/singleScattering/singleScattering/')
-path.append('/home/dori/develop/pyPamtra2/refractiveIndex/refractiveIndex/')
+path.append('/home/dori/develop/pyPamtra2/libs/singleScattering/singleScattering/')
+path.append('/home/dori/develop/pyPamtra2/libs/refractiveIndex/refractiveIndex/')
 from self_similar_rayleigh_gans import backscattering
 from refractive import ice
 diameters = np.linspace(0.4,40,200)
@@ -160,9 +160,9 @@ for freqidx in frequencies.keys():
     frGHz = frequencies[freqidx]
     frHz = frGHz*1.0e9
     for diam in diameters:
-        dataSSRG.loc[diam,freqidx],dataSSRG.loc[diam,'mkg'] = backscattering(frHz,diam*0.001,ice.n(270.,frHz))
+        dataSSRG.loc[diam,freqidx],dum, dum, dum, dataSSRG.loc[diam,'mkg'] = backscattering(frHz,diam*0.001,ice.n(270.,frHz))
 
-dataSSRG.to_csv('tables/DO_SSRG.csv')
+#dataSSRG.to_csv('tables/DO_SSRG.csv')
 
 dataSSRG.index.name = 'Dmax'
 import matplotlib.pyplot as plt

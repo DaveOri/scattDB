@@ -12,6 +12,10 @@ import pandas as pd
 import numpy as np
 import matplotlib.pyplot as plt
 # from scattDB import scattering
+from sys import path
+path.append('/home/dori/develop/pyPamtra2/libs/singleScattering/singleScattering/')
+from self_similar_rayleigh_gans import backscattering
+
 try:
     from scattDB import psd
 except:
@@ -102,12 +106,20 @@ dataBJ2_70.drop('Unnamed: 0', axis=1, inplace=True)
 dataBJ3 = pd.read_csv(tablesfolder+author+'_agg3_0'+'.csv')
 dataBJ3.drop('Unnamed: 0', axis=1, inplace=True)
 
-author = 'dataJL_B1.0'
-#author = 'dataJL_A0.5'
-#author = 'dataJL_A0.0'
+#author = 'dataJL_B1.0'
+author = 'dataJL_A0.1'
+author = 'dataJL_A0.0'
 dataJL = pd.read_csv(tablesfolder+author+'.csv')
 dataJL['xpolKa'] = 0.0
 
+author = 'dataJL_B1.0'
+dataRimed = pd.read_csv(tablesfolder+author+'.csv')
+dataRimed['xpolKa'] = 0.0
+
+#bm, am = np.polyfit(np.log10(dataJL.Dmax),np.log10(dataJL.mkg),1)
+#am = 10.0**am
+bm = 2.08
+am = 0.015
 
 dataRH = pd.DataFrame(index=dataRHa.index, columns=dataDO.columns)
 dataRH.Dmax = dataRH.index
@@ -127,6 +139,7 @@ ax.scatter(dataRH.Dmax, dataRH.mkg, label='RH')
 ax.scatter(dataJL.Dmax, dataJL.mkg, label='JL')
 ax.scatter(dataDO.Dmax, dataDO.mkg, label='DO')
 ax.plot(dataDO.Dmax, Br07(dataDO.Dmax), label='brandes')
+ax.plot(dataDO.Dmax, am*(dataDO.Dmax)**bm, label='JLfit')
 ax.plot(dataDO.Dmax, BF95(dataDO.Dmax), label='BF95')
 ax.legend()
 ax.grid()
@@ -559,150 +572,75 @@ try:
 except:
     print('not python2')
 
-xmie = 10**np.linspace(-2, 0.8, 150)
-xmie = xmie.reshape([len(xmie), 1])
-frequency = 94.6e9
-wavelength = 299792458.0/frequency
-r = scattnlay(xmie, np.ones_like(xmie)*refractiveIndex.ice.n(270.0, frequency))
-terms, Qext, Qsca, Qabs, Qbk, Qpr, g, Albedo, S1, S2 = r
-
-rsoft = xmie*wavelength/(2.0*np.pi)
-size, rho = reff2rhoBF95(rsoft, 1.0)
-ref_soft = refractiveIndex.snow.n(270.0, frequency, rho)
-xsoft = xeff(size*0.5, wavelength)
-terms, Qes, Qss, Qas, Qbs, Qpr, gs, Albedo, S1, S2 = scattnlay(xsoft, ref_soft)
-corr = ((0.5*size/rsoft)**2.0).reshape(Qas.shape)
-Qes = Qes*corr
-Qss = Qss*corr
-Qas = Qas*corr
-Qbs = Qbs*corr
-
-limit = 100
-axr = 0.6
-sizeell, rhoell = reff2rhoBF95(rsoft[:limit], axr)
-ref_ell = refractiveIndex.snow.n(270.0, frequency, rhoell)
-Qee = 0.0*sizeell
-Qse = 0.0*sizeell
-Qae = 0.0*sizeell
-Qbe = 0.0*sizeell
-ge = 0.0*sizeell
-for i, [rr, mm] in enumerate(zip(0.5*sizeell, ref_ell)):
-    # print(i)
-    scatt = tmatrix.Scatterer(radius=rr,
-                              radius_type=tmatrix.Scatterer.RADIUS_MAXIMUM,
-                              wavelength=wavelength, m=mm, axis_ratio=1.0/axr)
-    scatt.set_geometry((0.0, 0.0,   0.0, 0.0, 0.0, 0.0))
-    Qee[i] = scatter.ext_xsect(scatt)
-    Qse[i] = scatter.sca_xsect(scatt)
-    ge[i] = scatter.asym(scatt)
-    scatt.set_geometry((0.0, 180.0, 0.0, 0.0, 0.0, 0.0))
-    Qbe[i] = radar.radar_xsect(scatt)
-
-Aeff = np.pi*rsoft[:limit]**2.0
-Qee = Qee/Aeff
-Qse = Qse/Aeff
-Qbe = Qbe/Aeff
-Qae = Qee-Qse
-
 # %%
-fig, ax = plt.subplots(2, 2, figsize=(9, 9), sharex=True)
+sizes = np.linspace(0.00001, 0.04, 1000)
+masses = am*sizes**bm
+fx = 9.6e9
+mx = refractiveIndex.ice.n(270., fx)
+fku = 13.6e9
+mku = refractiveIndex.ice.n(270., fx)
+fka = 35.6e9
+mka = refractiveIndex.ice.n(270., fka)
+fw = 94e9
+mw = refractiveIndex.ice.n(270., fw)
+Cx = 0.0*masses
+Cku = 0.0*masses
+Cka = 0.0*masses
+Cw = 0.0*masses
+for i, [d, m] in enumerate(zip(sizes, masses)):
+    Cx[i], dum, dum, dum, dum = backscattering(fx, d, mx,
+                                               table='leinonen', mass=m)
+    Cku[i], dum, dum, dum, dum = backscattering(fku, d, mku,
+                                                table='leinonen', mass=m)
+    Cka[i], dum, dum, dum, dum = backscattering(fka, d, mka,
+                                                table='leinonen', mass=m)
+    Cw[i], dum, dum, dum, dum = backscattering(fw, d, mw,
+                                               table='leinonen', mass=m)
+cols = ['Dmax', 'X', 'Ku', 'Ka', 'W', 'mkg', 'xpolKa']
+dataJLssrg = pd.DataFrame(index=sizes, columns=cols)
+dataJLssrg['Dmax'] = sizes*1000.0
+dataJLssrg['mkg'] = masses*1000.0
+dataJLssrg['X'] = Cx
+dataJLssrg['Ku'] = Cku
+dataJLssrg['Ka'] = Cka
+dataJLssrg['W'] = Cw
 
-aeff = reff(dataJL['mkg']*0.001)
-#ax[0, 0].scatter(xeff(aeff, lamx*0.001), qeff(dataJL['Xb'], aeff),
-#                 c='k', s=1)
-# ax[0, 0].scatter(xeff(aeff, lamu*0.001), qeff(dataJL['Ub'], aeff), c='k', s=1)
-ax[0, 0].scatter(xeff(aeff, lama*0.001), qeff(dataJL['Ab'], aeff), c='k', s=1)
-ax[0, 0].scatter(xeff(aeff, lamw*0.001), qeff(dataJL['Wb'], aeff), c='k', s=1)
+D0s = np.linspace(0.1, 20., 30)
+vmin = 0
+vmax = 20
+cbarlabel = '$D_0$'
 
-aeff = reff(dataRH['mkg']*0.001)
-# ax[0, 0].scatter(xeff(aeff, lamx*0.001), qeff(dataRH['X'], aeff), c='k', s=1)
-# ax[0, 0].scatter(xeff(aeff, lamw*0.001), qeff(dataRH['W'], aeff), c='k', s=1)
+fig, ax = plt.subplots(1, 1, sharey=True, figsize=(6, 6))
 
-aeff = reff(dataDOssrg['mkg'])
-ax[0, 0].plot(xeff(aeff, lamx*0.001), qeff(dataDOssrg['W'], aeff),
-              c='r')
-ax[0, 0].plot(xeff(aeff, lamx*0.001), qeff(dataDOssrg['X'], aeff),
-              c='r')
+mu = 0.0
+Zx, Za, Zw, XKa, KaW, LDR, IWC = integratePSD(dataJLssrg)
+s = ax.scatter(KaW, XKa, c=D0s, marker=',',
+               label='Leinonen $\mu = 0$', vmin=vmin,
+               vmax=vmax, cmap='jet')
+mu = 4.0
+Zx, Za, Zw, XKa, KaW, LDR, IWC = integratePSD(dataJLssrg)
+s = ax.scatter(KaW, XKa, c=D0s, marker='+',
+               label='Leinonen $\mu = 4$', vmin=vmin,
+               vmax=vmax, cmap='jet')
+mu = 0.0
+Zx, Za, Zw, XKa, KaW, LDR, IWC = integratePSD(dataDOssrg)
+s = ax.scatter(KaW, XKa, c=D0s, marker='h',
+               label='Ori $\mu = 0$', vmin=vmin,
+               vmax=vmax, cmap='jet')
+mu = 4.0
+Zx, Za, Zw, XKa, KaW, LDR, IWC = integratePSD(dataDOssrg)
+s = ax.scatter(KaW, XKa, c=D0s, marker='v',
+               label='Ori $\mu = 4$', vmin=vmin,
+               vmax=vmax, cmap='jet')
 
+ax.grid()
+ax.legend()
+colorbar = plt.colorbar(mappable=s, ax=ax)
+colorbar.set_label(cbarlabel)
 
-ax[0, 0].plot(xmie, Qbk, c='k')
-ax[0, 0].plot(xmie, Qbs, '--', c='k')
-ax[0, 0].plot(xmie[:limit], Qbe, ':', c='k')
+ax.set_xlabel('DWR$_{Ka,W}$   [dB]')
+ax.set_ylabel('DWR$_{X,Ka}$   [dB]')
+# ax.set_xlim([0, 25])
 
-ax[0, 0].set_xlim([1e-2, 1e1])
-ax[0, 0].set_ylim([1e-8, 1e1])
-ax[0, 0].set_xscale('log')
-ax[0, 0].set_yscale('log')
-
-###############################################################################
-
-aeff = reff(dataJL['mkg']*0.001)
-#ax[0, 1].scatter(xeff(aeff, lamx*0.001), qeff(dataJL['Xs'], aeff), c='k', s=1)
-#ax[0, 1].scatter(xeff(aeff, lamu*0.001), qeff(dataJL['Us'], aeff), c='k', s=1)
-#ax[0, 1].scatter(xeff(aeff, lama*0.001), qeff(dataJL['As'], aeff), c='k', s=1)
-ax[0, 1].scatter(xeff(aeff, lamw*0.001), qeff(dataJL['Ws'], aeff), c='k', s=1)
-
-ax[0, 1].plot(xmie, Qsca, c='k', label='solid-sphere')
-ax[0, 1].plot(xmie, Qss, '--', c='k', label='soft-sphere')
-ax[0, 1].plot(xmie[:limit], Qse, ':', c='k', label='soft-spheroid')
-
-aeff = reff(dataDOssrg['mkg']*0.001)
-ax[0, 1].plot(xeff(aeff, lamx*0.001), qeff(1.0e-6*dataDOssrg['CabsW'], aeff),
-              c='k')
-
-
-ax[0, 1].set_xlim([1e-2, 1e1])
-ax[0, 1].set_ylim([1e-8, 1e1])
-ax[0, 1].set_xscale('log')
-ax[0, 1].set_yscale('log')
-ax[0, 1].legend(loc=4)
-
-###############################################################################
-
-aeff = reff(dataJL['mkg']*0.001)
-#ax[1, 0].scatter(xeff(aeff, lamx*0.001), qeff(dataJL['Xa'], aeff), c='k', s=1)
-#ax[1, 0].scatter(xeff(aeff, lamu*0.001), qeff(dataJL['Ua'], aeff), c='k', s=1)
-#ax[1, 0].scatter(xeff(aeff, lama*0.001), qeff(dataJL['Aa'], aeff), c='k', s=1)
-ax[1, 0].scatter(xeff(aeff, lamw*0.001), qeff(dataJL['Wa'], aeff), c='k', s=1)
-
-ax[1, 0].plot(xmie, Qabs, c='k')
-ax[1, 0].plot(xmie, Qas, '--', c='k')
-ax[1, 0].plot(xmie[:limit], Qae, ':', c='k')
-
-aeff = reff(dataDOssrg['mkg']*0.001)
-ax[1, 0].plot(xeff(aeff, lamx*0.001), qeff(1.0e-6*dataDOssrg['CabsW'], aeff),
-              c='k')
-
-ax[1, 0].set_xlim([1e-2, 1e-1])
-ax[1, 0].set_ylim([1e-5, 1e0])
-ax[1, 0].set_xscale('log')
-ax[1, 0].set_yscale('log')
-
-###############################################################################
-
-aeff = reff(dataJL['mkg']*0.001)
-# ax[1, 1].scatter(xeff(aeff, lamx*0.001), qeff(dataJL['Xe'], aeff), c='k', s=1)
-# ax[1, 1].scatter(xeff(aeff, lamu*0.001), qeff(dataJL['Ue'], aeff), c='k', s=1)
-# ax[1, 1].scatter(xeff(aeff, lama*0.001), qeff(dataJL['Ae'], aeff), c='k', s=1)
-# ax[1, 1].scatter(xeff(aeff, lamw*0.001), qeff(dataJL['We'], aeff), c='k', s=1)
-
-ax[1, 1].plot(xmie, g, c='k')
-ax[1, 1].plot(xmie, gs, '--', c='k')
-ax[1, 1].plot(xmie[:limit], ge, ':', c='k')
-
-aeff = reff(dataDOssrg['mkg']*0.001)
-
-ax[1, 1].set_xlim([1e-2, 1e1])
-# ax[1, 1].set_ylim([1e-6, 1e1])
-ax[1, 1].set_xscale('log')
-#ax[1, 1].set_yscale('log')
-
-ax[1, 0].set_xlabel('$x=\pi r_{eff}/\lambda$')
-ax[1, 1].set_xlabel('$x=\pi r_{eff}/\lambda$')
-ax[0, 0].set_ylabel('$Q_{bk}= C_{bk}/ \pi r^2_{eff}$')
-ax[0, 1].set_ylabel('$Q_{sca}= C_{sca}/ \pi r^2_{eff}$')
-ax[1, 0].set_ylabel('$Q_{abs}= C_{abs}/ \pi r^2_{eff}$')
-ax[1, 1].set_ylabel('$g$')
-fig.tight_layout()
-fig.savefig('aggregates_scattering.png', dpi=300)
-fig.savefig('aggregates_scattering.pdf', dpi=300)
+fig.suptitle('Unrimed aggregates')
+fig.savefig('3f_plot_AMS.png')
