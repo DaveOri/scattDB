@@ -452,47 +452,105 @@ def integratePSD(data):
     return Zx, Za, Zw, XKa, KaW, LDR, IWC
 
 fig, ax = plt.subplots(1, 2, sharey=True, figsize=(10, 4))
+fig2, ax2 = plt.subplots(1, 1, figsize=(6, 4))
+fig3, ax3 = plt.subplots(1, 1, figsize=(6, 4))
+
 Zx, Za, Zw, XKa, KaW, LDR, IWC = integratePSD(dataDO)
 print(max(LDR))
-s = ax[0].scatter(XKa, LDR, c=D0s, marker=',', label='dry', vmin=vmin,
+s = ax[0].scatter(XKa, LDR, c=D0s, marker=',', label='DO dry', vmin=vmin,
                   vmax=vmax, cmap='jet')
-s = ax[1].scatter(KaW, LDR, c=D0s, marker=',', label='dry', vmin=vmin,
+s = ax[1].scatter(KaW, LDR, c=D0s, marker=',', label='DO dry', vmin=vmin,
                   vmax=vmax, cmap='jet')
-Zx, Za, Zw, XKa, KaW, LDR, IWC = integratePSD(meltedDO10)
-print(max(LDR))
-s = ax[0].scatter(XKa, LDR, c=D0s, marker='.', label='10%', vmin=vmin,
-                  vmax=vmax, cmap='jet')
-s = ax[1].scatter(KaW, LDR, c=D0s, marker='.', label='10%', vmin=vmin,
-                  vmax=vmax, cmap='jet')
+ax2.plot(LDR, D0s, label='D0 dry')
+ax3.scatter(KaW, XKa, c=LDR, marker=',', label='D0 dry', cmap='jet',
+            vmin=-35, vmax=-15)
+
 Zx, Za, Zw, XKa, KaW, LDR, IWC = integratePSD(meltedDO40)
 print(max(LDR))
-s = ax[0].scatter(XKa, LDR, c=D0s, marker='+', label='40%', vmin=vmin,
+s = ax[0].scatter(XKa, LDR, c=D0s, marker='+', label='DO 40%', vmin=vmin,
                   vmax=vmax, cmap='jet')
-s = ax[1].scatter(KaW, LDR, c=D0s, marker='+', label='40%', vmin=vmin,
+s = ax[1].scatter(KaW, LDR, c=D0s, marker='+', label='DO 40%', vmin=vmin,
                   vmax=vmax, cmap='jet')
+ax2.plot(LDR, D0s, label='D0 40%')
+ax3.scatter(KaW, XKa, c=LDR, marker='+', label='D0 40%', cmap='jet',
+            vmin=-35, vmax=-15)
+
 Zx, Za, Zw, XKa, KaW, LDR, IWC = integratePSD(meltedDO70)
 print(max(LDR))
-s = ax[0].scatter(XKa, LDR, c=D0s, marker='h', label='70%', vmin=vmin,
+s = ax[0].scatter(XKa, LDR, c=D0s, marker='h', label='DO 70%', vmin=vmin,
                   vmax=vmax, cmap='jet')
-s = ax[1].scatter(KaW, LDR, c=D0s, marker='h', label='70%', vmin=vmin,
+s = ax[1].scatter(KaW, LDR, c=D0s, marker='h', label='DO 70%', vmin=vmin,
                   vmax=vmax, cmap='jet')
+ax2.plot(LDR, D0s, label='D0 70%')
+ax3.scatter(KaW, XKa, c=LDR, marker='h', label='D0 70%', cmap='jet',
+            vmin=-35, vmax=-15)
+
+Zx, Za, Zw, XKa, KaW, LDR, IWC = integratePSD(dataBJ2)
+print(max(LDR))
+s = ax[0].scatter(XKa, LDR, c=D0s, marker='.', label='BJ dry', vmin=vmin,
+                  vmax=vmax, cmap='jet')
+s = ax[1].scatter(KaW, LDR, c=D0s, marker='.', label='BJ dry', vmin=vmin,
+                  vmax=vmax, cmap='jet')
+ax2.plot(LDR, D0s, label='BJ dry')
+ax3.scatter(KaW, XKa, c=LDR, marker='.', label='BJ dry', cmap='jet',
+            vmin=-35, vmax=-15)
+
+Zx, Za, Zw, XKa, KaW, LDR, IWC = integratePSD(dataBJ2_40)
+print(max(LDR))
+s = ax[0].scatter(XKa, LDR, c=D0s, marker='x', label='BJ 40%', vmin=vmin,
+                  vmax=vmax, cmap='jet')
+s = ax[1].scatter(KaW, LDR, c=D0s, marker='x', label='BJ 40%', vmin=vmin,
+                  vmax=vmax, cmap='jet')
+ax2.plot(LDR, D0s, label='BJ 40%')
+ax3.scatter(KaW, XKa, c=LDR, marker='x', label='BJ 40%', cmap='jet',
+            vmin=-35, vmax=-15)
+
+Zx, Za, Zw, XKa, KaW, LDR, IWC = integratePSD(dataBJ2_70)
+print(max(LDR))
+s = ax[0].scatter(XKa, LDR, c=D0s, marker='v', label='BJ 70%', vmin=vmin,
+                  vmax=vmax, cmap='jet')
+s = ax[1].scatter(KaW, LDR, c=D0s, marker='v', label='BJ 70%', vmin=vmin,
+                  vmax=vmax, cmap='jet')
+ax2.plot(LDR, D0s, label='BJ 70%')
+ss = ax3.scatter(KaW, XKa, c=LDR, marker='v', label='BJ 70%', cmap='jet',
+                 vmin=-35, vmax=-15)
 
 ax[0].grid()
 ax[1].grid()
 ax[0].legend()
-colorbar = plt.colorbar(mappable=s, ax=ax[0])
-colorbar.set_label(cbarlabel)
+#colorbar = plt.colorbar(mappable=s, ax=ax[0])
+#colorbar.set_label(cbarlabel)
 colorbar = plt.colorbar(mappable=s, ax=ax[1])
 colorbar.set_label(cbarlabel)
+colorbar = plt.colorbar(mappable=ss, ax=ax3)
 
 ax[1].set_xlabel('DWR$_{Ka,W}$   [dBZ]')
 ax[0].set_xlabel('DWR$_{X,Ka}$   [dBZ]')
 ax[0].set_ylabel('LDR    [dB]')
 ax[0].set_xlim([0, 25])
 ax[1].set_xlim([0, 20])
-fig.suptitle('Dias Neto Knot')
-fig.savefig('LDR_DWR.png')
+fig.suptitle('DWR evolution in the melting layer')
+#fig.tight_layout()
+fig.savefig('LDR_DWR.png',dpi=300)
 
+ax2.set_ylim([0.0, 16])
+ax2.invert_yaxis()
+ax2.legend()
+ax2.grid()
+ax2.set_ylabel('D$_0$   [mm]')
+ax2.set_xlabel('LDR   [dB]')
+ax2.set_title('LDR profile')
+fig2.savefig('LDRprofile.pdf')
+fig2.savefig('LDRprofile.png',dpi=300)
+
+ax3.set_ylim([0.0, 20])
+ax3.legend()
+ax3.grid()
+ax3.set_ylabel('DWR$_{XKa}$   [dB]')
+ax3.set_xlabel('DWR$_{KaW}$   [dB]')
+ax3.set_title('3-frequency - LDR')
+fig3.savefig('3fLDR.pdf')
+fig3.savefig('3fLDR.png',dpi=300)
 
 # %%
 fig, ax = plt.subplots(1, 3, sharey=True, figsize=(14, 4))
@@ -531,10 +589,13 @@ ax[2].set_yscale('log')
 fig.savefig('DO_BJ_comp_Xpol.png')
 # %%
 plt.close('all')
-reff = lambda mass: np.cbrt(3.0*mass/(4.0*np.pi*916.0))
+reff = lambda mass: np.cbrt(3.0*mass/(4.0*np.pi*917.0))
 xeff = lambda r, l: 2.0*np.pi*r/l
 qeff = lambda C, r: C/(np.pi*r**2.0)
 
+
+def mass2x(mass, wl):
+    return 2.0*np.pi*np.cbrt(3.0*mass/(4.0*np.pi*917.0))/wl
 
 def reff2rhoBr07(r, ar):
     mass = 4.0*np.pi*r**3.0*916.0/3.0
@@ -672,11 +733,19 @@ ax[0].scatter(xeff(aeff, lamw*0.001), qeff(dataRimed['Wb'], aeff), c='k', s=1)
 #               c='g')
 # ax[0, 0].plot(xeff(aeff, lamx*0.001), qeff(1.0*dataDOssrg['X'], aeff),
 #              c='r')
-ax[0].plot(xssrg, Qbssrg, c='0.5')
+ax[0].plot(xssrg, Qbssrg, c='0.5', lw=3.0)
 
 ax[0].plot(xmie, Qbk, c='k')
 ax[0].plot(xmie, Qbs, '--', c='k')
 ax[0].plot(xmie[:limit], Qbe, ':', c='k')
+
+mg = 10.0e-6
+ax[0].vlines(mass2x(mg, lamx*1.0e-3), ymin=1e-8, ymax=1e2)
+ax[0].vlines(mass2x(mg, lama*1.0e-3), ymin=1e-8, ymax=1e2)
+ax[0].vlines(mass2x(mg, lamw*1.0e-3), ymin=1e-8, ymax=1e2)
+ax[0].text(2.0e-1, 3.0e0, 'X')
+ax[0].text(7.0e-1, 3.0e0, 'Ka')
+ax[0].text(2.0e0, 3.0e0, 'W')
 
 ax[0].set_xlim([1e-1, 1e1])
 ax[0].set_ylim([1e-8, 1e2])
@@ -697,7 +766,14 @@ ax[1].scatter(xeff(aeff, lamw*0.001),
 ax[1].plot(xmie, Qsca+Qabs, c='k', label='solid-sphere')
 ax[1].plot(xmie, Qss+Qas, '--', c='k', label='soft-sphere')
 ax[1].plot(xmie[:limit], Qee, ':', c='k', label='soft-spheroid $a_r=0.6$')
-ax[1].plot(xssrg, Qessrg, c='0.5', label='ssrg unrimed')
+ax[1].plot(xssrg, Qessrg, c='0.5', lw=3.0, label='ssrg unrimed')
+
+ax[1].vlines(mass2x(mg, lamx*1.0e-3), ymin=1e-4, ymax=1e1)
+ax[1].vlines(mass2x(mg, lama*1.0e-3), ymin=1e-4, ymax=1e1)
+ax[1].vlines(mass2x(mg, lamw*1.0e-3), ymin=1e-4, ymax=1e1)
+ax[1].text(2.0e-1, 5.0e0, 'X')
+ax[1].text(7.0e-1, 5.0e0, 'Ka')
+ax[1].text(2.0e0, 5.0e0, 'W')
 
 ax[1].set_xlim([1e-1, 1e1])
 ax[1].set_ylim([1e-4, 1e1])
@@ -705,10 +781,10 @@ ax[1].set_xscale('log')
 ax[1].set_yscale('log')
 ax[1].legend(loc=4)
 
-ax[0].set_xlabel('$x=\pi r_{eff}/\lambda$')
-ax[1].set_xlabel('$x=\pi r_{eff}/\lambda$')
-ax[0].set_ylabel('$Q_{bk}= C_{bk}/ \pi r^2_{eff}$')
-ax[1].set_ylabel('$Q_{ext}= C_{ext}/ \pi r^2_{eff}$')
+ax[0].set_xlabel('$x=2\pi r_{eff}/\lambda$')
+ax[1].set_xlabel('$x=2\pi r_{eff}/\lambda$')
+ax[0].set_ylabel('$Q_{bk}$')
+ax[1].set_ylabel('$Q_{ext}$')
 fig.tight_layout()
 fig.savefig('aggregates_scattering.png', dpi=300)
 fig.savefig('aggregates_scattering.pdf', dpi=300)
@@ -757,22 +833,22 @@ mu = 0.0
 Zx, Za, Zw, XKa, KaW, LDR, IWC = integratePSD(dataJLssrg)
 s = ax.scatter(KaW, XKa, c=D0s, marker=',',
                label='Leinonen $\mu = 0$', vmin=vmin,
-               vmax=vmax, cmap='jet')
+               vmax=vmax, cmap='magma')
 mu = 4.0
 Zx, Za, Zw, XKa, KaW, LDR, IWC = integratePSD(dataJLssrg)
 s = ax.scatter(KaW, XKa, c=D0s, marker='+',
                label='Leinonen $\mu = 4$', vmin=vmin,
-               vmax=vmax, cmap='jet')
+               vmax=vmax, cmap='magma')
 mu = 0.0
 Zx, Za, Zw, XKa, KaW, LDR, IWC = integratePSD(dataDOssrg)
 s = ax.scatter(KaW, XKa, c=D0s, marker='h',
                label='Ori $\mu = 0$', vmin=vmin,
-               vmax=vmax, cmap='jet')
+               vmax=vmax, cmap='magma')
 mu = 4.0
 Zx, Za, Zw, XKa, KaW, LDR, IWC = integratePSD(dataDOssrg)
 s = ax.scatter(KaW, XKa, c=D0s, marker='v',
                label='Ori $\mu = 4$', vmin=vmin,
-               vmax=vmax, cmap='jet')
+               vmax=vmax, cmap='magma')
 
 ax.grid()
 ax.legend()
@@ -788,17 +864,226 @@ fig.savefig('3f_plot_AMS.png',dpi=600)
 
 # %%
 fig, ax = plt.subplots(1, 1, figsize=(6, 6))
-ax.plot(1000.*sizes, 10.0*np.log10(10.0e6*Cx*lamx**4), label="X-band")
-ax.plot(1000.*sizes, 10.0*np.log10(10.0e6*Cka*lama**4), label="Ka-band")
-ax.plot(1000.*sizes, 10.0*np.log10(10.0e6*Cw*lamw**4), label="W-band")
+ax.plot(1000.*sizes, 10.0*np.log10(10.0e6*Cx*lamx**4/np.pi**5), label="X-band")
+ax.plot(1000.*sizes, 10.0*np.log10(10.0e6*Cka*lama**4/np.pi**5), label="Ka-band")
+ax.plot(1000.*sizes, 10.0*np.log10(10.0e6*Cw*lamw**4/np.pi**5), label="W-band")
 ax.set_xscale('log')
 # ax.set_yscale('log')
 ax.set_xlim([0.1, 100])
-ax.set_ylim([-60, 50])
+ax.set_ylim([-50, 30])
 ax.set_xlabel('Particle size    [mm]')
 ax.set_ylabel('Reflectivity    [dBZ]')
 ax.set_title('Unrimed aggregates')
 ax.legend()
 ax.grid()
 fig.savefig('XKaW_reflectivity.pdf')
-fig.savefig('XKaW_reflectivity.png',dpi=600)
+fig.savefig('XKaW_reflectivity.png', dpi=600)
+
+# %%
+fig, (ax0, ax1, ax2) = plt.subplots(3, 1, figsize=(8, 12), sharex=True)
+ax0.scatter(meltedDO10.Dmax, meltedDO10.Ku, vmin=0, vmax=70, label='DO  2014',
+            c=10.0*np.ones(meltedDO10.Dmax.shape), marker='+', cmap='jet')
+ax0.scatter(meltedDO20.Dmax, meltedDO20.Ku, vmin=0, vmax=70, label=None,
+            c=20.0*np.ones(meltedDO20.Dmax.shape), marker='+', cmap='jet')
+ax0.scatter(meltedDO30.Dmax, meltedDO30.Ku, vmin=0, vmax=70, label=None,
+            c=30.0*np.ones(meltedDO30.Dmax.shape), marker='+', cmap='jet')
+ax0.scatter(meltedDO40.Dmax, meltedDO40.Ku, vmin=0, vmax=70, label=None,
+            c=40.0*np.ones(meltedDO40.Dmax.shape), marker='+', cmap='jet')
+ax0.scatter(meltedDO50.Dmax, meltedDO50.Ku, vmin=0, vmax=70, label=None,
+            c=50.0*np.ones(meltedDO50.Dmax.shape), marker='+', cmap='jet')
+ax0.scatter(meltedDO60.Dmax, meltedDO60.Ku, vmin=0, vmax=70, label=None,
+            c=60.0*np.ones(meltedDO60.Dmax.shape), marker='+', cmap='jet')
+ax0.scatter(meltedDO70.Dmax, meltedDO70.Ku, vmin=0, vmax=70, label=None,
+            c=70.0*np.ones(meltedDO70.Dmax.shape), marker='+', cmap='jet')
+ax0.scatter(dataBJ2_10.Dmax, dataBJ2_10.Ku, vmin=0, vmax=70, label=None,
+            c=10.0*np.ones(dataBJ2_10.Dmax.shape), marker='h', cmap='jet')
+ax0.scatter(dataBJ2_20.Dmax, dataBJ2_20.Ku, vmin=0, vmax=70, label=None,
+            c=20.0*np.ones(dataBJ2_20.Dmax.shape), marker='h', cmap='jet')
+ax0.scatter(dataBJ2_30.Dmax, dataBJ2_30.Ku, vmin=0, vmax=70, label=None,
+            c=30.0*np.ones(dataBJ2_30.Dmax.shape), marker='h', cmap='jet')
+ax0.scatter(dataBJ2_40.Dmax, dataBJ2_40.Ku, vmin=0, vmax=70, label=None,
+            c=40.0*np.ones(dataBJ2_40.Dmax.shape), marker='h', cmap='jet')
+ax0.scatter(dataBJ2_49.Dmax, dataBJ2_49.Ku, vmin=0, vmax=70, label='BJ  2016',
+            c=49.0*np.ones(dataBJ2_49.Dmax.shape), marker='h', cmap='jet')
+s = ax0.scatter(dataBJ2_70.Dmax, dataBJ2_70.Ku, vmin=0, vmax=70, label=None,
+                c=70.0*np.ones(dataBJ2_70.Dmax.shape), marker='h', cmap='jet')
+
+ax1.scatter(meltedDO10.Dmax, meltedDO10.Ka, vmin=0, vmax=70, label='DO  2014',
+            c=10.0*np.ones(meltedDO10.Dmax.shape), marker='+', cmap='jet')
+ax1.scatter(meltedDO20.Dmax, meltedDO20.Ka, vmin=0, vmax=70, label=None,
+            c=20.0*np.ones(meltedDO20.Dmax.shape), marker='+', cmap='jet')
+ax1.scatter(meltedDO30.Dmax, meltedDO30.Ka, vmin=0, vmax=70, label=None,
+            c=30.0*np.ones(meltedDO30.Dmax.shape), marker='+', cmap='jet')
+ax1.scatter(meltedDO40.Dmax, meltedDO40.Ka, vmin=0, vmax=70, label=None,
+            c=40.0*np.ones(meltedDO40.Dmax.shape), marker='+', cmap='jet')
+ax1.scatter(meltedDO50.Dmax, meltedDO50.Ka, vmin=0, vmax=70, label=None,
+            c=50.0*np.ones(meltedDO50.Dmax.shape), marker='+', cmap='jet')
+ax1.scatter(meltedDO60.Dmax, meltedDO60.Ka, vmin=0, vmax=70, label=None,
+            c=60.0*np.ones(meltedDO60.Dmax.shape), marker='+', cmap='jet')
+ax1.scatter(meltedDO70.Dmax, meltedDO70.Ka, vmin=0, vmax=70, label=None,
+            c=70.0*np.ones(meltedDO70.Dmax.shape), marker='+', cmap='jet')
+ax1.scatter(dataBJ2_10.Dmax, dataBJ2_10.Ka, vmin=0, vmax=70, label=None,
+            c=10.0*np.ones(dataBJ2_10.Dmax.shape), marker='h', cmap='jet')
+ax1.scatter(dataBJ2_20.Dmax, dataBJ2_20.Ka, vmin=0, vmax=70, label=None,
+            c=20.0*np.ones(dataBJ2_20.Dmax.shape), marker='h', cmap='jet')
+ax1.scatter(dataBJ2_30.Dmax, dataBJ2_30.Ka, vmin=0, vmax=70, label=None,
+            c=30.0*np.ones(dataBJ2_30.Dmax.shape), marker='h', cmap='jet')
+ax1.scatter(dataBJ2_40.Dmax, dataBJ2_40.Ka, vmin=0, vmax=70, label=None,
+            c=40.0*np.ones(dataBJ2_40.Dmax.shape), marker='h', cmap='jet')
+ax1.scatter(dataBJ2_49.Dmax, dataBJ2_49.Ka, vmin=0, vmax=70, label='BJ  2016',
+            c=49.0*np.ones(dataBJ2_49.Dmax.shape), marker='h', cmap='jet')
+s = ax1.scatter(dataBJ2_70.Dmax, dataBJ2_70.Ka, vmin=0, vmax=70, label=None,
+                c=70.0*np.ones(dataBJ2_70.Dmax.shape), marker='h', cmap='jet')
+
+ax2.scatter(meltedDO10.Dmax, meltedDO10.W, vmin=0, vmax=70,
+            label='Ori et al.  (2014)',
+            c=10.0*np.ones(meltedDO10.Dmax.shape), marker='+', cmap='jet')
+ax2.scatter(meltedDO20.Dmax, meltedDO20.W, vmin=0, vmax=70, label=None,
+            c=20.0*np.ones(meltedDO20.Dmax.shape), marker='+', cmap='jet')
+ax2.scatter(meltedDO30.Dmax, meltedDO30.W, vmin=0, vmax=70, label=None,
+            c=30.0*np.ones(meltedDO30.Dmax.shape), marker='+', cmap='jet')
+ax2.scatter(meltedDO40.Dmax, meltedDO40.W, vmin=0, vmax=70, label=None,
+            c=40.0*np.ones(meltedDO40.Dmax.shape), marker='+', cmap='jet')
+ax2.scatter(meltedDO50.Dmax, meltedDO50.W, vmin=0, vmax=70, label=None,
+            c=50.0*np.ones(meltedDO50.Dmax.shape), marker='+', cmap='jet')
+ax2.scatter(meltedDO60.Dmax, meltedDO60.W, vmin=0, vmax=70, label=None,
+            c=60.0*np.ones(meltedDO60.Dmax.shape), marker='+', cmap='jet')
+ax2.scatter(meltedDO70.Dmax, meltedDO70.W, vmin=0, vmax=70, label=None,
+            c=70.0*np.ones(meltedDO70.Dmax.shape), marker='+', cmap='jet')
+ax2.scatter(dataBJ2_10.Dmax, dataBJ2_10.W, vmin=0, vmax=70, label=None,
+            c=10.0*np.ones(dataBJ2_10.Dmax.shape), marker='h', cmap='jet')
+ax2.scatter(dataBJ2_20.Dmax, dataBJ2_20.W, vmin=0, vmax=70, label=None,
+            c=20.0*np.ones(dataBJ2_20.Dmax.shape), marker='h', cmap='jet')
+ax2.scatter(dataBJ2_30.Dmax, dataBJ2_30.W, vmin=0, vmax=70, label=None,
+            c=30.0*np.ones(dataBJ2_30.Dmax.shape), marker='h', cmap='jet')
+ax2.scatter(dataBJ2_40.Dmax, dataBJ2_40.W, vmin=0, vmax=70, label=None,
+            c=40.0*np.ones(dataBJ2_40.Dmax.shape), marker='h', cmap='jet')
+ax2.scatter(dataBJ2_49.Dmax, dataBJ2_49.W, vmin=0, vmax=70,
+            label='Johnson et al. (2016) aggregate 2',
+            c=49.0*np.ones(dataBJ2_49.Dmax.shape), marker='h', cmap='jet')
+s = ax2.scatter(dataBJ2_70.Dmax, dataBJ2_70.W, vmin=0, vmax=70, label=None,
+                c=70.0*np.ones(dataBJ2_70.Dmax.shape), marker='h', cmap='jet')
+
+ax0.set_ylim([1e-8, 1e1])
+ax1.set_ylim([1e-8, 1e1])
+ax2.set_ylim([1e-8, 1e1])
+ax2.set_xlim([0, 16])
+ax0.grid()
+ax1.grid()
+ax2.grid()
+ax2.set_xlabel('maximum dimension    [mm]')
+ax0.set_ylabel('radar backscattering cross section    [mm$^2$]')
+ax1.set_ylabel('radar backscattering cross section    [mm$^2$]')
+ax2.set_ylabel('radar backscattering cross section    [mm$^2$]')
+ax0.set_yscale('log')
+ax1.set_yscale('log')
+ax2.set_yscale('log')
+ax0.set_title('Ku band    13.6 GHz')
+ax1.set_title('Ka band    35.6 GHz')
+ax2.set_title('W band    94 GHz')
+ax2.legend(loc=4)
+colorbar = plt.colorbar(mappable=s, ax=ax0, label='melted fraction   [%]')
+colorbar = plt.colorbar(mappable=s, ax=ax1, label='melted fraction   [%]')
+colorbar = plt.colorbar(mappable=s, ax=ax2, label='melted fraction   [%]')
+fig.tight_layout()
+fig.savefig('melted_comp_Dmax_backscatt.pdf')
+fig.savefig('melted_comp_Dmax_backscatt.png',dpi=300)
+
+# %%
+
+fig, ax = plt.subplots(1, 2, figsize=(10, 4))
+ax[0].plot(1e3*reff(1e-3*meltedDO10.mkg), meltedDO10.CextX.values, c='k',
+           label='melted 10%')
+ax[0].plot(1e3*reff(1e-3*meltedDO50.mkg), meltedDO50.CextX.values, c='0.5',
+           label='melted 50%')
+ax[0].plot(1e3*reff(1e-3*meltedDO10.mkg), meltedDO10.CextKa.values, c='k', ls='--')
+ax[0].plot(1e3*reff(1e-3*meltedDO50.mkg), meltedDO50.CextKa.values, c='0.5', ls='--')
+ax[0].plot(1e3*reff(1e-3*meltedDO10.mkg), meltedDO10.CextW.values, c='k', ls='-.')
+ax[0].plot(1e3*reff(1e-3*meltedDO50.mkg), meltedDO50.CextW.values, c='0.5', ls='-.')
+
+# ax.set_xlim(0.3,16)
+# ax.set_ylim(1.0e-6,1.0e0)
+ax[0].set_xscale('log')
+ax[0].set_yscale('log')
+ax[0].grid()
+ax[0].legend()
+ax[0].set_xlabel('Equivolume radius [mm]')
+ax[0].set_ylabel('Extinction cross section  [mm$^2$]')
+ax[1].plot(1e3*reff(1e-3*meltedDO10.mkg), meltedDO10.X, c='k')
+ax[1].plot(1e3*reff(1e-3*meltedDO10.mkg), meltedDO50.X.values, c='0.5')
+ax[1].plot(1e3*reff(1e-3*meltedDO10.mkg), meltedDO10.Ka, c='k', ls='--')
+ax[1].plot(1e3*reff(1e-3*meltedDO10.mkg), meltedDO50.Ka.values, c='0.5', ls='--')
+ax[1].plot(1e3*reff(1e-3*meltedDO10.mkg), meltedDO10.W, c='k', ls='-.')
+ax[1].plot(1e3*reff(1e-3*meltedDO10.mkg), meltedDO50.W.values, c='0.5', ls='-.')
+ax[1].set_xlim(0, 2)
+ax[1].set_ylim(1.0e-6, 1.0e2)
+ax[1].set_xticks([0.0,0.5,1.0,1.5,2.0])
+# ax.set_xscale('log')
+ax[1].set_yscale('log')
+ax[1].grid()
+ax[1].legend()
+ax[1].set_xlabel('Equivolume radius [mm]')
+ax[1].set_ylabel('Backscattering cross section  [mm$^2$]')
+fig.tight_layout()
+fig.savefig('book_melted.pdf')
+fig.savefig('book_melted.png',dpi=600)
+
+
+# %%
+
+fig, ax = plt.subplots(1, 1, figsize=(8, 6))
+ax.scatter(meltedDO10.Dmax, meltedDO10.mkg, label='Ori et al. (2014)')
+ax.scatter(dataBJ2.Dmax, 1.0e6*dataBJ2.mkg,
+           label='Johnson et al. (2016) - agg2')
+ax.plot(meltedDO10.Dmax, Br07(meltedDO10.Dmax), label='Brandes et al. (2007)')
+ax.plot(meltedDO10.Dmax, BF95(meltedDO10.Dmax),
+        label='Brown and Francis (1995)')
+ax.set_xlim(0.3, 16)
+ax.set_ylim(1.0e-6, 1.0e-1)
+ax.set_xscale('log')
+ax.set_yscale('log')
+ax.grid()
+ax.legend()
+ax.set_xlabel('maximum dimension  [mm]')
+ax.set_ylabel('mass    [g]')
+fig.savefig('melted_mass_size.pdf')
+fig.savefig('melted_mass_size.png',dpi=600)
+
+# %%
+fig, ax = plt.subplots(1, 1, figsize=(10, 6))
+ax.scatter(meltedDO10.mkg, meltedDO10.Ku, vmin=0, vmax=70, label='DO  2014',
+           c=10.0*np.ones(meltedDO10.mkg.shape), marker='+', cmap='jet')
+ax.scatter(meltedDO20.mkg, meltedDO20.Ku, vmin=0, vmax=70, label=None,
+           c=20.0*np.ones(meltedDO20.mkg.shape), marker='+', cmap='jet')
+ax.scatter(meltedDO30.mkg, meltedDO30.Ku, vmin=0, vmax=70, label=None,
+           c=30.0*np.ones(meltedDO30.mkg.shape), marker='+', cmap='jet')
+ax.scatter(meltedDO40.mkg, meltedDO40.Ku, vmin=0, vmax=70, label=None,
+           c=40.0*np.ones(meltedDO40.mkg.shape), marker='+', cmap='jet')
+ax.scatter(meltedDO50.mkg, meltedDO50.Ku, vmin=0, vmax=70, label=None,
+           c=50.0*np.ones(meltedDO50.mkg.shape), marker='+', cmap='jet')
+ax.scatter(meltedDO60.mkg, meltedDO60.Ku, vmin=0, vmax=70, label=None,
+           c=60.0*np.ones(meltedDO60.mkg.shape), marker='+', cmap='jet')
+ax.scatter(meltedDO70.mkg, meltedDO70.Ku, vmin=0, vmax=70, label=None,
+           c=70.0*np.ones(meltedDO70.mkg.shape), marker='+', cmap='jet')
+ax.scatter(1e6*dataBJ2_10.mkg, dataBJ2_10.Ku, vmin=0, vmax=70, label=None,
+           c=10.0*np.ones(dataBJ2_10.mkg.shape), marker='h', cmap='jet')
+ax.scatter(1e6*dataBJ2_20.mkg, dataBJ2_20.Ku, vmin=0, vmax=70, label=None,
+           c=20.0*np.ones(dataBJ2_20.mkg.shape), marker='h', cmap='jet')
+ax.scatter(1e6*dataBJ2_30.mkg, dataBJ2_30.Ku, vmin=0, vmax=70, label=None,
+           c=30.0*np.ones(dataBJ2_30.mkg.shape), marker='h', cmap='jet')
+ax.scatter(1e6*dataBJ2_40.mkg, dataBJ2_40.Ku, vmin=0, vmax=70, label=None,
+           c=40.0*np.ones(dataBJ2_40.mkg.shape), marker='h', cmap='jet')
+ax.scatter(1e6*dataBJ2_49.mkg, dataBJ2_49.Ku, vmin=0, vmax=70, label='BJ  2016',
+           c=49.0*np.ones(dataBJ2_49.mkg.shape), marker='h', cmap='jet')
+s = ax.scatter(1e6*dataBJ2_70.mkg, dataBJ2_70.Ku, vmin=0, vmax=70, label=None,
+               c=70.0*np.ones(dataBJ2_70.mkg.shape), marker='h', cmap='jet')
+ax.set_ylim([1e-8, 1e1])
+# ax.set_xlim([0, 16])
+ax.grid()
+ax.set_xlabel('mass    [g]')
+ax.set_ylabel('radar backscattering cross section    [mm$^2$]')
+ax.set_yscale('log')
+ax.legend()
+colorbar = plt.colorbar(mappable=s, ax=ax, label='melted fraction   [%]')
+fig.savefig('melted_comp_mkg_backscatt.pdf')
+fig.savefig('melted_comp_mkg_backscatt.png',dpi=600)
