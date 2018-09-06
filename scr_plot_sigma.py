@@ -61,7 +61,7 @@ tablesfolder = 'tables/'
 authors = ['DO', 'BJ', 'JL', 'meltedDO']
 
 
-author = 'meltedDO'
+author = 'melted2DO'
 meltedDO10 = pd.read_csv(tablesfolder+author+'10'+'.csv')
 meltedDO20 = pd.read_csv(tablesfolder+author+'20'+'.csv')
 meltedDO30 = pd.read_csv(tablesfolder+author+'30'+'.csv')
@@ -318,7 +318,7 @@ f3plot(meltedDO30, color='ldr', ax=ax, fig=fig)
 f3plot(meltedDO50, color='ldr', ax=ax, fig=fig)
 f3plot(meltedDO70, color='ldr', title='DO melt = 0 30 50 70', ax=ax, fig=fig)
 plt.grid()
-fig.savefig('3f_melted_Davide.png', dpi=300)
+fig.savefig('3f_melted_Davide2.png', dpi=300)
 
 fig, ax = f3plot(dataBJ2, color='ldr')
 f3plot(dataBJ2_30, color='ldr', ax=ax, fig=fig)
@@ -363,7 +363,7 @@ f3profile(meltedDO50, ax=ax, what='LDR')
 f3profile(meltedDO70, title='Davide 0 30 50 70', ax=ax, what='LDR')
 ax.invert_yaxis()
 plt.grid()
-plt.savefig('ldr_profile_Davide.png', dpi=400)
+plt.savefig('ldr_profile_Davide2.png', dpi=400)
 # f3profile(dataDO,title='Davide dry 0.01 kg/m$^2$',what=0.01)
 # f3profile(dataDO,title='Davide dry',what='DWR')
 # f3profile(dataDO,title='Davide dry',what='LDR')
@@ -491,7 +491,7 @@ ax[0].set_ylabel('LDR    [dB]')
 ax[0].set_xlim([0, 25])
 ax[1].set_xlim([0, 20])
 fig.suptitle('Dias Neto Knot')
-fig.savefig('LDR_DWR.png')
+fig.savefig('LDR_DWR2.png')
 
 
 # %%
@@ -528,7 +528,7 @@ ax[2].set_title('Copol Xsec Ka   [mm$^2$]')
 ax[2].set_xlabel('Dmax     [mm]')
 ax[2].legend()
 ax[2].set_yscale('log')
-fig.savefig('DO_BJ_comp_Xpol.png')
+fig.savefig('DO_BJ_comp_Xpol2.png')
 # %%
 plt.close('all')
 reff = lambda mass: np.cbrt(3.0*mass/(4.0*np.pi*916.0))
@@ -643,4 +643,4 @@ ax.set_ylabel('DWR$_{X,Ka}$   [dB]')
 # ax.set_xlim([0, 25])
 
 fig.suptitle('Unrimed aggregates')
-fig.savefig('3f_plot_AMS.png')
+fig.savefig('3f_plot_AMS2.png')

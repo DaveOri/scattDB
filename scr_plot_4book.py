@@ -665,6 +665,7 @@ xssrg = xeff(reff(masses), wavelength)
 for i, [d, m] in enumerate(zip(dmaxes, masses)):
     Cbssrg[i], Cassrg[i], Csssrg[i], dum, mk = backscattering(frequency, d, mm,
                                                               table='leinonen',
+                                                              ELWP=0.0,
                                                               mass=m)
 
     Qessrg[i] = (Cassrg[i]+Csssrg[i])/(np.pi*reff(m)**2.0)
@@ -806,13 +807,13 @@ Cka = 0.0*masses
 Cw = 0.0*masses
 for i, [d, m] in enumerate(zip(sizes, masses)):
     Cx[i], dum, dum, dum, dum = backscattering(fx, d, mx,
-                                               table='leinonen', mass=m)
+                                               table='leinonen', ELWP=0.0, mass=m)
     Cku[i], dum, dum, dum, dum = backscattering(fku, d, mku,
-                                                table='leinonen', mass=m)
+                                                table='leinonen', ELWP=0.0, mass=m)
     Cka[i], dum, dum, dum, dum = backscattering(fka, d, mka,
-                                                table='leinonen', mass=m)
+                                                table='leinonen', ELWP=0.0, mass=m)
     Cw[i], dum, dum, dum, dum = backscattering(fw, d, mw,
-                                               table='leinonen', mass=m)
+                                               table='leinonen', ELWP=0.0, mass=m)
 cols = ['Dmax', 'X', 'Ku', 'Ka', 'W', 'mkg', 'xpolKa']
 dataJLssrg = pd.DataFrame(index=sizes, columns=cols)
 dataJLssrg['Dmax'] = sizes*1000.0
@@ -822,13 +823,59 @@ dataJLssrg['Ku'] = Cku
 dataJLssrg['Ka'] = Cka
 dataJLssrg['W'] = Cw
 
+for i, [d, m] in enumerate(zip(sizes, masses)):
+    Cx[i], dum, dum, dum, dum = backscattering(fx, d, mx,
+                                               table='leinonen', ELWP=0.5, mass=m)
+    Cku[i], dum, dum, dum, dum = backscattering(fku, d, mku,
+                                                table='leinonen', ELWP=0.5, mass=m)
+    Cka[i], dum, dum, dum, dum = backscattering(fka, d, mka,
+                                                table='leinonen', ELWP=0.5, mass=m)
+    Cw[i], dum, dum, dum, dum = backscattering(fw, d, mw,
+                                               table='leinonen', ELWP=0.5, mass=m)
+cols = ['Dmax', 'X', 'Ku', 'Ka', 'W', 'mkg', 'xpolKa']
+dataJL05 = pd.DataFrame(index=sizes, columns=cols)
+dataJL05['Dmax'] = sizes*1000.0
+dataJL05['mkg'] = masses*1000.0
+dataJL05['X'] = Cx
+dataJL05['Ku'] = Cku
+dataJL05['Ka'] = Cka
+dataJL05['W'] = Cw
+
+for i, [d, m] in enumerate(zip(sizes, masses)):
+    Cx[i], dum, dum, dum, dum = backscattering(fx, d, mx,
+                                               table='leinonen', ELWP=1.0, mass=m)
+    Cku[i], dum, dum, dum, dum = backscattering(fku, d, mku,
+                                                table='leinonen', ELWP=1.0, mass=m)
+    Cka[i], dum, dum, dum, dum = backscattering(fka, d, mka,
+                                                table='leinonen', ELWP=1.0, mass=m)
+    Cw[i], dum, dum, dum, dum = backscattering(fw, d, mw,
+                                               table='leinonen', ELWP=1.0, mass=m)
+cols = ['Dmax', 'X', 'Ku', 'Ka', 'W', 'mkg', 'xpolKa']
+dataJL10 = pd.DataFrame(index=sizes, columns=cols)
+dataJL10['Dmax'] = sizes*1000.0
+dataJL10['mkg'] = masses*1000.0
+dataJL10['X'] = Cx
+dataJL10['Ku'] = Cku
+dataJL10['Ka'] = Cka
+dataJL10['W'] = Cw
+
+
 D0s = np.linspace(0.1, 20., 30)
 vmin = 0
 vmax = 20
 cbarlabel = '$D_0$'
 
 fig, ax = plt.subplots(1, 1, figsize=(6, 6))
-
+mu = 0.0
+Zx, Za, Zw, XKa, KaW, LDR, IWC = integratePSD(dataDOssrg)
+s = ax.scatter(KaW, XKa, c=D0s, marker=',',
+               label='Ori $\mu = 0$', vmin=vmin,
+               vmax=vmax, cmap='magma')
+mu = 4.0
+Zx, Za, Zw, XKa, KaW, LDR, IWC = integratePSD(dataDOssrg)
+s = ax.scatter(KaW, XKa, c=D0s, marker='+',
+               label='Ori $\mu = 4$', vmin=vmin,
+               vmax=vmax, cmap='magma')
 mu = 0.0
 Zx, Za, Zw, XKa, KaW, LDR, IWC = integratePSD(dataJLssrg)
 s = ax.scatter(KaW, XKa, c=D0s, marker=',',
@@ -840,14 +887,25 @@ s = ax.scatter(KaW, XKa, c=D0s, marker='+',
                label='Leinonen $\mu = 4$', vmin=vmin,
                vmax=vmax, cmap='magma')
 mu = 0.0
-Zx, Za, Zw, XKa, KaW, LDR, IWC = integratePSD(dataDOssrg)
+Zx, Za, Zw, XKa, KaW, LDR, IWC = integratePSD(dataJL05)
 s = ax.scatter(KaW, XKa, c=D0s, marker='h',
-               label='Ori $\mu = 0$', vmin=vmin,
+               label='Leinonen 0.5 $\mu = 0$', vmin=vmin,
                vmax=vmax, cmap='magma')
 mu = 4.0
-Zx, Za, Zw, XKa, KaW, LDR, IWC = integratePSD(dataDOssrg)
+Zx, Za, Zw, XKa, KaW, LDR, IWC = integratePSD(dataJL05)
 s = ax.scatter(KaW, XKa, c=D0s, marker='v',
-               label='Ori $\mu = 4$', vmin=vmin,
+               label='Leinonen 0.5 $\mu = 4$', vmin=vmin,
+               vmax=vmax, cmap='magma')
+
+mu = 0.0
+Zx, Za, Zw, XKa, KaW, LDR, IWC = integratePSD(dataJL10)
+s = ax.scatter(KaW, XKa, c=D0s, marker='h',
+               label='Leinonen 1.0 $\mu = 0$', vmin=vmin,
+               vmax=vmax, cmap='magma')
+mu = 4.0
+Zx, Za, Zw, XKa, KaW, LDR, IWC = integratePSD(dataJL10)
+s = ax.scatter(KaW, XKa, c=D0s, marker='v',
+               label='Leinonen 1.0 $\mu = 4$', vmin=vmin,
                vmax=vmax, cmap='magma')
 
 ax.grid()
@@ -859,7 +917,7 @@ ax.set_xlabel('DWR$_{Ka,W}$   [dB]')
 ax.set_ylabel('DWR$_{X,Ka}$   [dB]')
 # ax.set_xlim([0, 25])
 
-fig.suptitle('Unrimed aggregates')
+fig.suptitle('Rimed aggregates')
 fig.savefig('3f_plot_AMS.png',dpi=600)
 
 # %%

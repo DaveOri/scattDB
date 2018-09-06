@@ -88,7 +88,40 @@ for melt_frac in melt_fracs:
   data.sort(columns='Dmax',inplace=True)
   data.set_index('Dmax',inplace=True)
   data.to_csv('tables/meltedDO'+str(melt_frac)+'.csv')
+  
+#%%
+freqs = {'9.6':'X','13.6':'Ku','35.6':'Ka','94':'W'}
+scattfolder = '/data/optimice/scattering_databases/DavideOri_2014/melted/'
+subfolders = glob(scattfolder+'*')
+#subfolders = [x for x in subfolders if '12973' not in x]
+melt_fracs = [10,20,30,40,50,60,70]
+for melt_frac in melt_fracs:
+  data = pd.DataFrame(index=[x[len(scattfolder):] for x in subfolders],columns=cols)
+  for subfolder in subfolders:
+    Dstr = subfolder[len(scattfolder):]
+    D = float(Dstr)*1e-3
+    # print(subfolder, D)
+    data.loc[Dstr,'Dmax'] = D
+    for freqidx in freqs.keys():
+      datafolder = subfolder + '/2/' + freqidx +'/'+ str(melt_frac)+'/'
+      scatt = scattering.ScattADDA(logfile=datafolder+'log',
+                                   muellerfile=datafolder+'mueller',
+                                   csfile=datafolder+'CrossSec', D=D)
+      # print(scatt.sig_bk/scatt.radar_xsect)
+      data.loc[Dstr,freqs[freqidx]] = scatt.sig_bk*1e12
+      data.loc[Dstr,'mkg'] = scatt.mass*1e18
+      data.loc[Dstr,'Cext'+freqs[freqidx]] = scatt.sig_ext*1e12
+      data.loc[Dstr,'Csca'+freqs[freqidx]] = scatt.sig_sca*1e12
+      data.loc[Dstr,'Cabs'+freqs[freqidx]] = scatt.sig_abs*1e12
+      if freqidx == '35.6':
+        data.loc[Dstr,'ldr'] = scatt.ldr
+        data.loc[Dstr,'xpolKa'] = scatt.xpol_xsect*1e12
+  data = data.astype(float)
+  data.sort(columns='Dmax',inplace=True)
+  data.set_index('Dmax',inplace=True)
+  data.to_csv('tables/melted2DO'+str(melt_frac)+'.csv')
 
+#%%
 
 freqs = {'000':'C','001':'X','002':'Ku','003':'Ka','004':'W','005':'89','006':'157'}
 freqs = {'001':'X','002':'Ku','003':'Ka','004':'W'}
